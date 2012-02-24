@@ -1,0 +1,75 @@
+.card {
+  width: 7.3em;
+  height: 8.6em;
+  border: 1px solid #666;
+  position: relative;
+  background-color: white;
+  box-shadow: .2em .2em .5em #333;
+  font-family: Monaco, Lucida Sans Unicode, sans-serif;
+  -moz-box-shadow: .2em .2em .5em #333;
+  -webkit-box-shadow: .2em .2em .5em #333;
+  -webkit-border-radius: .3em;
+}
+
+.card-action {
+  width: 70px;
+  height: 80px;
+  position: relative;
+  background-color: #f5f5f5;
+  -webkit-border-radius: .3em;
+  margin-top: 13px;
+}
+
+.row {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 1.5em 0;
+  position: relative;
+  clear: both;  
+}
+
+
+ul.cards li {
+  margin: 3px;
+  padding: 0;
+  list-style-type: none;
+  float: left;
+}
+  
+.spades, .clubs {
+  color: black;
+}
+
+.hearts, .diams {
+  color: red;
+}
+
+.rank {
+  position: absolute;
+  top: 43px; /*1em*/
+  left: 37px;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.suit {
+  position: relative;
+	top: 45px;
+	right: 4px;
+  font-size: 120px;    
+  font-family: Monaco, Lucida Sans Unicode, sans-serif;
+}
+
+.total {
+  font-size: 28px;
+}
+
+.bet .btn {
+  font-size: 18px;
+}
+
+/*.actions {
+  text-align: center;
+}*/
