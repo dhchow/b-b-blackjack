@@ -1,8 +1,11 @@
 describe("Deck", function(){
   var deck
   
+  beforeEach(function(){
+    deck = new Deck
+  })
+  
 	it("starts with 52 unique cards of a standard deck", function(){
-	  deck = new Deck
     expect(deck.length).toBe(52)
         
     expect(_.uniq(deck.toJSON()).length).toBe(52)
@@ -15,13 +18,11 @@ describe("Deck", function(){
 	})
   
   it("can be shuffled", function(){
-    deck = new Deck
     expect(_.isEqual(deck, deck)).toBe(true)
     expect(_.isEqual(deck, deck.shuffle())).toBe(false)
   })
   
-  it("can draw the first n cards < 52", function(){
-    deck = new Deck
+  it("can draw the first n cards", function(){
     var cards = deck.draw()
     expect(cards.length).toBe(1)
     expect(deck.length).toBe(51)
@@ -29,5 +30,14 @@ describe("Deck", function(){
     cards = deck.draw(5)
     expect(cards.length).toBe(5)
     expect(deck.length).toBe(46)
+  })
+    
+  describe("when asked to draw more cards than it has", function(){
+    it("draws all remaining cards", function(){
+      deck.reset([{suit: "hearts", rank: 7}, {suit: "spades", rank: 8}])
+      expect(deck.length).toBe(2)
+      var cards = deck.draw(3)
+      expect(cards.length).toBe(2)
+    })
   })
 })

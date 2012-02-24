@@ -46,7 +46,7 @@ var Deck = Backbone.Collection.extend({
   draw: function(number){
     var drawn = []
     number = number || 1
-    while(number--) {
+    while(number-- && this.length) {
       var first = this.first()
       drawn.push(first)
       this.remove(first)
