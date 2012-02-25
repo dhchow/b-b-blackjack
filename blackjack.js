@@ -46,6 +46,7 @@ var Deck = Backbone.Collection.extend({
   draw: function(number){
     var drawn = []
     number = number || 1
+    // Amazingly, no pop in backbone or underscore?
     while(number-- && this.length) {
       var first = this.first()
       drawn.push(first)
@@ -56,6 +57,40 @@ var Deck = Backbone.Collection.extend({
 })
 
 var Player = Backbone.Model.extend({
-  
+  defaults: {
+    bet: 0,
+    cards: [],
+    credit: 500
+  },
+  validate: function(attrs){
+    if (attrs.bet > attrs.credit)
+      return "Not enough credit :("
+  },
+  addCard: function(card){
+    if (card instanceof Card)
+      this.get("cards").push(card)
+  },
+  lose: function(){
+    var credit = this.get("credit")
+    var bet = this.get("bet")
+    this.set({credit: credit - bet, bet: 0})
+  },
+  win: function(){
+    var credit = this.get("credit")
+    var bet = this.get("bet")
+    this.set({credit: credit + bet, bet: 0})
+  }
 })
 
+var PlayerView = Backbone.View.extend({
+  tagName: "div",
+  events: {
+    "click .bet .btn" : "betChanged"
+  },
+  
+  betChanged: function(ev){
+    var target = $(ev.target)
+    target.addClass("active")
+    this.model.set("bet", target.data("value"))
+  }
+})
