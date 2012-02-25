@@ -1,12 +1,17 @@
 $(function(){
   window.testCard = new Card({suit: "hearts", rank: 5})
-  window.testCardView = new CardView(testCard)
+  window.testCardView = new CardView({model: testCard}).render()
   window.testDeck = new Deck();
 
-  $("#dealer").append()
+  $(".dealer .row").append($(testCardView.el))
   console.log(testCard)
+  console.log(testCardView.el)
   console.log(testDeck)
   console.log(testCardView)
+})
+
+var BlackjackView = Backbone.View.extend({
+  
 })
 
 var Card = Backbone.Model.extend({
@@ -15,23 +20,29 @@ Card.SUITS = ["hearts", "spades", "clubs", "diams"]
 Card.RANKS = ["ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "jack", "queen", "king"]
 
 var CardView = Backbone.View.extend({
-  tagName: 'li',
+  model: Card,
+  tagName: 'div',
+  attributes: function(){
+    return { "class": "card span2 " + this.model.get("suit") } 
+  },
   render: function() {
-    this.el = ich.card(this.templateData())
+    this.$el.html(ich.card(this.templateData()))
     return this;
   },
-  templateData: function() {    
+  templateData: function() {  
+    var suit = this.model.get("suit")
+    var rank = this.model.get("rank")
     return {
       suit: suit,
-      suitView: "&"+suit+";",
+      suitView: "&"+ suit +";",
       // tweaking 10 to make it fit on the card better
-      rankView: this.model.rank == 10 ? "&#953;o" : this.model.rank
+      rankView: rank == 10 ? "&#953;o" : rank
     }
   }
 })
 
 var CardsView = Backbone.View.extend({
-  tagName: 'ul'
+  tagName: 'div'
 })
 
 var Deck = Backbone.Collection.extend({
@@ -40,8 +51,8 @@ var Deck = Backbone.Collection.extend({
     _.each(this.model.SUITS, function(s){
       _.each(this.model.RANKS, function(r){
         this.add({suit: s, rank: r})
-      }.bind(this))
-    }.bind(this))
+      }, this)
+    }, this)
   },
   draw: function(number){
     var drawn = []
@@ -84,11 +95,20 @@ var Player = Backbone.Model.extend({
 
 var PlayerView = Backbone.View.extend({
   tagName: "div",
+    
   events: {
-    "click .bet .btn" : "betChanged"
+    "click .bet .btn" : "bet"
+    // "click #deal"     : "deal"
+    // "click #hit"      : "hit"
+    // "click #stand"    : "stand"
   },
   
-  betChanged: function(ev){
+  // deal: function(){
+  //   
+  // },
+  
+  bet: function(ev){
+    this.$(".bet .btn").removeClass("active")
     var target = $(ev.target)
     target.addClass("active")
     this.model.set("bet", target.data("value"))
