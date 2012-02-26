@@ -1,6 +1,7 @@
 
 $(function(){
-  window.blackjackView = new BlackjackView({el: $(".container-fluid")})
+  window.blackjackGame = new BlackjackGame()
+  window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
   // window.testCard = new Card({suit: "hearts", rank: 5})
   // window.testCardView = new CardView({model: testCard}).render().el
   // window.testDeck = new Deck();
@@ -10,49 +11,67 @@ $(function(){
   // window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
 })
 var BlackjackGame = Backbone.Model.extend({
-  initialize: function(){
-    
-  }
-})
-var BlackjackView = Backbone.View.extend({
+  defaults: {
+    inProgress: false
+  },
   initialize: function(){
     this._initDeck()
     this._initDealer()
     this._initPlayer()
-    this.inProgress = false
-  },
-  events: {
-    "click #deal" : "_deal"
-  },
-  _deal: function(ev){
-    var button = $(ev.target)
-    if (button.hasClass("disabled")) return;    
-    button.addClass("disabled").removeClass("btn-primary")
-    this.deal()
   },
   deal: function(){
-    this.inProgress = true
+    this.set("inProgress", true)
     this.player.addCards(this.deck.draw(2))
     this.dealer.addCards(this.deck.draw(1))
   },
   _initDeck: function(){
     this.deck = new Deck()
+    this.set("deck", this.deck)
     this._setCardValues()
     this.deck.shuffle()
   },
   _initDealer: function() {
     this.dealer = new Person()
-    this.dealerView = new DealerView({el: $(".dealer"), model: this.dealer})
+    this.set("dealer", this.dealer)
   },
   _initPlayer: function(){
     this.player = new Player()
-    this.playerView = new PlayerView({el: $(".player"), model: this.player})
+    this.set("player", this.player)
   },
   _setCardValues: function(){
     var aces = this.deck.findByRank("A")
     var tens = this.deck.findByRank(["J", "Q", "K"])
     _.each(aces, function(card){ card.set("value", 11) })
     _.each(tens, function(card){ card.set("value", 10) })
+  }
+})
+var BlackjackView = Backbone.View.extend({
+  model: BlackjackGame,
+  initialize: function(){
+    this.playerView = new PlayerView({el: this.$(".player"), model: this.model.get("player")})
+    this.dealerView = new DealerView({el: this.$(".dealer"), model: this.model.get("dealer")})
+    
+    // Game events
+    this.model.on("change:inProgress", this.onProgressChange, this)
+    
+    // Player events
+    // this.model.player.on()
+  },
+  events: {
+    "click #deal" : "deal"
+  },
+  deal: function(ev){
+    if ($(ev.target).hasClass("disabled")) return;    
+    this.model.deal()
+  },
+  onProgressChange: function(inProgress){
+    if (inProgress) {
+      this.$("#deal").addClass("disabled").removeClass("btn-primary")
+      this.$(".bet").addClass("disabled")
+    } else {
+      this.$("#deal").removeClass("disabled").addClass("btn-primary")
+      this.$(".bet").addClass("disabled")
+    }
   }
 })
 
