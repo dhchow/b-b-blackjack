@@ -174,10 +174,16 @@ var Person = Backbone.Model.extend({
   }
 })
 
+var PersonView = Backbone.View.extend({
+  initialize: function(){
+    this.handView = new HandView({el: this.$(".hand"), collection: this.model.get("hand")})
+  }
+})
+
 // var Dealer = Person.extend({
 // })
 
-var DealerView = Backbone.View.extend({
+var DealerView = PersonView.extend({
   model: Person
 })
 
@@ -202,13 +208,9 @@ var Player = Person.extend({
   }
 })
 
-var PlayerView = Backbone.View.extend({
+var PlayerView = PersonView.extend({
   tagName: "div",
   
-  initialize: function(){
-    this.handView = new HandView({el: this.$(".hand"), collection: this.model.get("hand")})
-  },
-    
   events: {
     "click .bet .btn" : "bet"
     // "click #deal"     : "deal"
