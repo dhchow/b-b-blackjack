@@ -17,7 +17,8 @@ describe("Deck", function(){
     })
 	})
   
-  it("can be shuffled", function(){
+  it("can be shuffled to randomize order", function(){
+    // deck.indexOf()
     expect(_.isEqual(deck, deck)).toBe(true)
     expect(_.isEqual(deck, deck.shuffle())).toBe(false)
   })

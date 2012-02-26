@@ -42,5 +42,5 @@ describe("Player", function(){
     player.on("error", errorCallback)
     player.set("bet", 501)
     expect(errorCallback).toHaveBeenCalled()
-  })      
+  })  
 })

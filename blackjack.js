@@ -1,3 +1,4 @@
+
 $(function(){
   window.testCard = new Card({suit: "hearts", rank: 5})
   window.testCardView = new CardView({model: testCard}).render().el
@@ -17,17 +18,72 @@ $(function(){
   // console.log(testCardView)
 })
 
+
 var BlackjackView = Backbone.View.extend({
-  
+  initialize: function(){
+    this.deck = new Deck()
+    this.deck.shuffle()
+    this.player = new Player()    
+  },
+  setCardValues: function(){
+    
+  }
 })
 
 var Card = Backbone.Model.extend({
+  initialize: function(){
+    this.setId()
+    this.setValue()
+  },
+  setId: function(){
+    this.set("id", this.get("rank") + this.get("suit"))
+  },
+  setValue: function(){
+    var rank = this.get("rank")
+    var value = rank
+    if (rank == "A") value = 1
+    else if (rank == "J") value = 11
+    else if (rank == "Q") value = 12
+    else if (rank == "K") value = 13
+    
+    this.set("value", value)
+  }
 })
 Card.SUITS = ["hearts", "spades", "clubs", "diams"]
-Card.RANKS = ["ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "jack", "queen", "king"]
+Card.RANKS = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K"]
+
+var CardView = Backbone.View.extend({
+  model: Card,
+  tagName: 'div',
+  attributes: function(){
+    return { 
+      "class"   : "card span2 " + this.model.get("suit"),
+      "id" : this.model.get("suit") + this.model.get("rank"),  
+    } 
+  },
+  render: function() {
+    this.$el.html(ich.card(this.templateData()))
+    return this;
+  },
+  templateData: function() {  
+    var suit = this.model.get("suit")
+    var rank = this.model.get("rank")
+    return {
+      suit: suit,
+      suitView: "&"+ suit +";",
+      // tweaking 10 to make it fit on the card better
+      rankView: rank == 10 ? "&#953;o" : rank
+    }
+  }
+})
 
 var Hand = Backbone.Collection.extend({
-  model: Card
+  model: Card,
+  value: function(){
+    return this.reduce(function(memo, card){
+      return memo + card.get("value")
+    }, 0)
+  }
 })
 
 var HandView = Backbone.View.extend({
@@ -55,31 +111,6 @@ var HandView = Backbone.View.extend({
   },
   removeAll: function(){
     this.$el.empty()
-  }
-})
-
-var CardView = Backbone.View.extend({
-  model: Card,
-  tagName: 'div',
-  attributes: function(){
-    return { 
-      "class"   : "card span2 " + this.model.get("suit"),
-      "id" : this.model.get("suit") + this.model.get("rank"),  
-    } 
-  },
-  render: function() {
-    this.$el.html(ich.card(this.templateData()))
-    return this;
-  },
-  templateData: function() {  
-    var suit = this.model.get("suit")
-    var rank = this.model.get("rank")
-    return {
-      suit: suit,
-      suitView: "&"+ suit +";",
-      // tweaking 10 to make it fit on the card better
-      rankView: rank == 10 ? "&#953;o" : rank
-    }
   }
 })
 
