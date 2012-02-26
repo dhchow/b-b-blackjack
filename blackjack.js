@@ -10,7 +10,12 @@ $(function(){
   
   console.log(testHandView)
 
-  $(".dealer").append(testHandView)
+  // $(".dealer").append(testHandView)
+  
+  window.testPlayer = new Player()
+  window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
+
+  testPlayer.addCard(testDeck.first())
   // $(".dealer .row").append(testCardView)
   // console.log(testCard)
   // console.log(testCardView.el)
@@ -151,6 +156,12 @@ var Deck = Backbone.Collection.extend({
   }
 })
 
+var Dealer = Backbone.Model.extend({
+  defaults: {
+    hand: new Hand()
+  }
+})
+
 var Player = Backbone.Model.extend({
   defaults: {
     bet: 0,
@@ -179,6 +190,10 @@ var Player = Backbone.Model.extend({
 
 var PlayerView = Backbone.View.extend({
   tagName: "div",
+  
+  initialize: function(){
+    this.handView = new HandView({el: this.$(".hand"), collection: this.model.get("hand")})
+  },
     
   events: {
     "click .bet .btn" : "bet"
