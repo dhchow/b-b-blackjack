@@ -2,6 +2,8 @@ describe("BlackjackView", function(){
   var view
   
   beforeEach(function() {
+    // ICanHaz stub for the card template
+    ich = {card: function(){}}
     view = new BlackjackView()
   })
   
@@ -23,25 +25,41 @@ describe("BlackjackView", function(){
     expect(badTensExist).toBe(false)
   })
   
-  it("creates a new player with corresponding view", function() {
+  it("creates a player with corresponding view", function() {
     expect(view.player).toBeDefined()
     expect(view.playerView).toBeDefined()
     expect(view.playerView.model).toBe(view.player)
   })
 
-  it("creates a view for dealer's hand", function() {
-    expect(view.dealerHand).toBeDefined()
-    // expect((view.dealerHand instanceOf Hand).toBe(true)
+  it("creates a dealer with corresponding view", function() {
+    expect(view.dealer).toBeDefined()
+    expect(view.dealerView).toBeDefined()
+    expect(view.dealerView.model).toBe(view.dealer)
   })
   
   describe("#deal", function(){
+    beforeEach(function() {
+      spyOn(view.deck, "draw").andCallThrough()
+      spyOn(view.player, "addCards").andCallThrough()      
+      spyOn(view.dealer, "addCards").andCallThrough()
+    })
     
     it("gives player two cards from the deck", function() {
-      
+      expect(view.player.get("hand").length).toBe(0)
+      view.deal()
+      expect(view.deck.draw).toHaveBeenCalled()
+      expect(view.player.addCards).toHaveBeenCalled()
+      expect(view.deck.length).toBeLessThan(52)
+      expect(view.player.get("hand").length).toBe(2)
     })
     
     it("gives dealer one card from the deck", function(){
-      
+      expect(view.dealer.get("hand").length).toBe(0)
+      view.deal()
+      expect(view.deck.draw).toHaveBeenCalled()
+      expect(view.dealer.addCards).toHaveBeenCalled()
+      expect(view.deck.length).toBe(49)
+      expect(view.dealer.get("hand").length).toBe(1)
     })
   })  
 })

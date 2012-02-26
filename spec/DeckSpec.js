@@ -18,9 +18,10 @@ describe("Deck", function(){
 	})
   
   it("can be shuffled to randomize order", function(){
-    // deck.indexOf()
-    expect(_.isEqual(deck, deck)).toBe(true)
-    expect(_.isEqual(deck, deck.shuffle())).toBe(false)
+    var firstCard = deck.first()
+    expect(deck.indexOf(firstCard)).toBe(0)
+    deck.shuffle()
+    expect(deck.indexOf(firstCard)).not.toBe(0)
   })
   
   it("can draw the first n cards", function(){

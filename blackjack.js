@@ -1,42 +1,40 @@
 
 $(function(){
+  window.blackjackView = new BlackjackView({el: $(".container-fluid")})
   window.testCard = new Card({suit: "hearts", rank: 5})
   window.testCardView = new CardView({model: testCard}).render().el
   window.testDeck = new Deck();
-  
   window.testHand = new Hand([{suit: "diams", rank: 7}, {suit: "diams", rank: 8}])
-  console.log(testHand)
-  window.testHandView = new HandView({collection: testHand}).render().el
-  
-  console.log(testHandView)
-
-  // $(".dealer").append(testHandView)
-  
+  window.testHandView = new HandView({collection: testHand}).render().el  
   window.testPlayer = new Player()
   window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
-
-  testPlayer.addCard(testDeck.first())
-  // $(".dealer .row").append(testCardView)
-  // console.log(testCard)
-  // console.log(testCardView.el)
-  // console.log(testDeck)
-  // console.log(testCardView)
 })
 
 var BlackjackView = Backbone.View.extend({
   initialize: function(){
     this._initDeck()
+    this._initDealer()
     this._initPlayer()
-    this.dealerHand = new Hand()
+  },
+  events: {
+    "click #deal" : "deal"
+  },
+  deal: function(){
+    this.player.addCards(this.deck.draw(2))
+    this.dealer.addCards(this.deck.draw(1))
   },
   _initDeck: function(){
     this.deck = new Deck()
     this._setCardValues()
     this.deck.shuffle()
   },
+  _initDealer: function() {
+    this.dealer = new Person()
+    this.dealerView = new DealerView({el: $(".dealer"), model: this.dealer})
+  },
   _initPlayer: function(){
     this.player = new Player()
-    this.playerView = new PlayerView({ el: $(".player"), model: this.player})
+    this.playerView = new PlayerView({el: $(".player"), model: this.player})
   },
   _setCardValues: function(){
     var aces = this.deck.findByRank("A")
@@ -88,7 +86,7 @@ var CardView = Backbone.View.extend({
       suit: suit,
       suitView: "&"+ suit +";",
       // tweaking 10 to make it fit on the card better
-      rankView: rank == 10 ? "&#953;o" : rank
+      rankView: rank == 10 ? "l0" : rank
     }
   }
 })
@@ -153,28 +151,44 @@ var Deck = Backbone.Collection.extend({
   findByRank: function(ranks){
     var ranks = _.isArray(ranks) ? ranks : [ranks]
     return this.filter(function(card){ return _.indexOf(ranks, card.get("rank")) != -1})
+  },
+  shuffle: function(){
+    var shuffled = Backbone.Collection.prototype.shuffle.call(this)
+    this.models = shuffled
+    return this
   }
 })
 
-var Dealer = Backbone.Model.extend({
-  defaults: {
-    hand: new Hand()
+var Person = Backbone.Model.extend({
+  initialize: function(){
+    this.set("hand", new Hand())
+  },
+  addCards: function(cards){
+    if (!_.isArray(cards)) cards = [cards]
+    
+    _.each(cards, function(card){
+      if (card instanceof Card) {
+        this.get("hand").add(card)
+      }      
+    }, this)
   }
 })
 
-var Player = Backbone.Model.extend({
+// var Dealer = Person.extend({
+// })
+
+var DealerView = Backbone.View.extend({
+  model: Person
+})
+
+var Player = Person.extend({
   defaults: {
     bet: 0,
-    hand: new Hand(),
     credit: 500
   },
   validate: function(attrs){
     if (attrs.bet > attrs.credit)
       return "Not enough credit :("
-  },
-  addCard: function(card){
-    if (card instanceof Card)
-      this.get("hand").add(card)
   },
   lose: function(){
     var credit = this.get("credit")
