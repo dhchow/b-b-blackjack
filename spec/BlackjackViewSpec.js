@@ -44,6 +44,12 @@ describe("BlackjackView", function(){
       spyOn(view.dealer, "addCards").andCallThrough()
     })
     
+    it("marks game as in progress", function(){
+      expect(view.inProgress).toBe(false)
+      view.deal()
+      expect(view.inProgress).toBe(true)
+    })
+    
     it("gives player two cards from the deck", function() {
       expect(view.player.get("hand").length).toBe(0)
       view.deal()

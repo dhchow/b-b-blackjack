@@ -1,25 +1,37 @@
 
 $(function(){
   window.blackjackView = new BlackjackView({el: $(".container-fluid")})
-  window.testCard = new Card({suit: "hearts", rank: 5})
-  window.testCardView = new CardView({model: testCard}).render().el
-  window.testDeck = new Deck();
-  window.testHand = new Hand([{suit: "diams", rank: 7}, {suit: "diams", rank: 8}])
-  window.testHandView = new HandView({collection: testHand}).render().el  
-  window.testPlayer = new Player()
-  window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
+  // window.testCard = new Card({suit: "hearts", rank: 5})
+  // window.testCardView = new CardView({model: testCard}).render().el
+  // window.testDeck = new Deck();
+  // window.testHand = new Hand([{suit: "diams", rank: 7}, {suit: "diams", rank: 8}])
+  // window.testHandView = new HandView({collection: testHand}).render().el  
+  // window.testPlayer = new Player()
+  // window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
 })
-
+var BlackjackGame = Backbone.Model.extend({
+  initialize: function(){
+    
+  }
+})
 var BlackjackView = Backbone.View.extend({
   initialize: function(){
     this._initDeck()
     this._initDealer()
     this._initPlayer()
+    this.inProgress = false
   },
   events: {
-    "click #deal" : "deal"
+    "click #deal" : "_deal"
+  },
+  _deal: function(ev){
+    var button = $(ev.target)
+    if (button.hasClass("disabled")) return;    
+    button.addClass("disabled").removeClass("btn-primary")
+    this.deal()
   },
   deal: function(){
+    this.inProgress = true
     this.player.addCards(this.deck.draw(2))
     this.dealer.addCards(this.deck.draw(1))
   },
@@ -213,15 +225,10 @@ var PlayerView = PersonView.extend({
   
   events: {
     "click .bet .btn" : "bet"
-    // "click #deal"     : "deal"
     // "click #hit"      : "hit"
     // "click #stand"    : "stand"
   },
-  
-  // deal: function(){
-  //   
-  // },
-  
+    
   bet: function(ev){
     this.$(".bet .btn").removeClass("active")
     var target = $(ev.target)
