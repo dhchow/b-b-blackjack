@@ -32,6 +32,14 @@ describe("Deck", function(){
     expect(cards.length).toBe(5)
     expect(deck.length).toBe(46)
   })
+  
+  it("can retrieve cards by rank", function() {
+    var jacks = deck.findByRank("J")
+    expect(jacks.length).toBe(4)
+    
+    var multiple = deck.findByRank(["A", "Q"])
+    expect(multiple.length).toBe(8)
+  })
     
   describe("when asked to draw more cards than it has", function(){
     it("draws all remaining cards", function(){

@@ -18,15 +18,26 @@ $(function(){
   // console.log(testCardView)
 })
 
-
 var BlackjackView = Backbone.View.extend({
   initialize: function(){
-    this.deck = new Deck()
-    this.deck.shuffle()
-    this.player = new Player()    
+    this._initDeck()
+    this._initPlayer()
+    this.dealerHand = new Hand()
   },
-  setCardValues: function(){
-    
+  _initDeck: function(){
+    this.deck = new Deck()
+    this._setCardValues()
+    this.deck.shuffle()
+  },
+  _initPlayer: function(){
+    this.player = new Player()
+    this.playerView = new PlayerView({ el: $(".player"), model: this.player})
+  },
+  _setCardValues: function(){
+    var aces = this.deck.findByRank("A")
+    var tens = this.deck.findByRank(["J", "Q", "K"])
+    _.each(aces, function(card){ card.set("value", 11) })
+    _.each(tens, function(card){ card.set("value", 10) })
   }
 })
 
@@ -126,20 +137,24 @@ var Deck = Backbone.Collection.extend({
   draw: function(number){
     var drawn = []
     number = number || 1
-    // Amazingly, no pop in backbone or underscore?
+    // .pop() is still making its way into backbone RC
     while(number-- && this.length) {
       var first = this.first()
-      drawn.push(first)
       this.remove(first)
+      drawn.push(first)
     }
     return drawn
+  },
+  findByRank: function(ranks){
+    var ranks = _.isArray(ranks) ? ranks : [ranks]
+    return this.filter(function(card){ return _.indexOf(ranks, card.get("rank")) != -1})
   }
 })
 
 var Player = Backbone.Model.extend({
   defaults: {
     bet: 0,
-    cards: [],
+    hand: new Hand(),
     credit: 500
   },
   validate: function(attrs){
@@ -148,7 +163,7 @@ var Player = Backbone.Model.extend({
   },
   addCard: function(card){
     if (card instanceof Card)
-      this.get("cards").push(card)
+      this.get("hand").add(card)
   },
   lose: function(){
     var credit = this.get("credit")

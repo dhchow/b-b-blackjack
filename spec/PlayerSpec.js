@@ -5,8 +5,8 @@ describe("Player", function(){
     player = new Player()
   })
   
-	it("starts with no cards", function(){
-    expect(player.get("cards").length).toBe(0)
+	it("starts with no cards in hand", function(){
+    expect(player.get("hand").length).toBe(0)
 	})
   
   it("starts with $500", function(){
@@ -17,10 +17,10 @@ describe("Player", function(){
     expect(player.get("bet")).toBe(0)
   })
   
-  it("can receive cards", function(){
+  it("can receive cards in hand", function(){
     var card = new Card()
     player.addCard(card)
-    expect(player.get("cards").length).toBe(1)
+    expect(player.get("hand").length).toBe(1)
   })
   
   it("can lose bet", function(){
