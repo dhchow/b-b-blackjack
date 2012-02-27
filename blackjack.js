@@ -48,14 +48,21 @@ var BlackjackGame = Backbone.Model.extend({
       this.dealerTurn()
   },
   dealerTurn: function(){
-    if (this.dealer.get("hand").value() < 17)
+    if (this.getHandValue(this.dealer) < 17)
       this.dealer.addCards(this.deck.draw())
       
     this.trigger("end:turn")
   },
+  getHandValue: function(person){
+    var handValue = person.get("hand").value()
+    if (handValue > 21 && person.get("hand").hasRank("A")) {
+      return handValue - 10;
+    } else
+      return handValue;
+  },
   refreshState: function(){
     _.each([this.player, this.dealer], function(person){
-      if (person.get("hand").value() > 21) {
+      if (this.getHandValue(person) > 21) {
         this.trigger("end:game")
       }      
     }, this)
@@ -93,8 +100,6 @@ var BlackjackView = Backbone.View.extend({
     this.model
       .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
-    // Player events
-    // this.model.player.on()
   },
   events: {
     "click #deal" : "deal",
@@ -174,6 +179,9 @@ var Hand = Backbone.Collection.extend({
     return this.reduce(function(memo, card){
       return memo + card.get("value")
     }, 0)
+  },
+  hasRank: function(rank){
+    return this.any(function(card){ return card.get("rank") == rank })
   }
 })
 

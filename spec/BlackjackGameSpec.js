@@ -189,4 +189,19 @@ describe("BlackjackGame", function(){
       expect(game.trigger).toHaveBeenCalledWith("end:turn")
     }) 
   })
+  
+  describe("#getHandValue", function() {
+    it("returns hand value of person accounting for ace", function() {
+      var person = new Person()      
+      person.addCards([
+        new Card({suit: "spades", rank: 2}),
+        new Card({suit: "spades", rank: 3})
+      ])
+      expect(game.getHandValue(person)).toBe(5)
+      person.addCards(new Card({suit: "hearts", rank: "A"}).set("value", 11))
+      expect(game.getHandValue(person)).toBe(16)
+      person.addCards(new Card({suit: "hearts", rank: 10}))
+      expect(game.getHandValue(person)).toBe(16)
+    })
+  })
 })
