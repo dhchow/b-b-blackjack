@@ -18,10 +18,19 @@ describe("Deck", function(){
 	})
   
   it("can be shuffled to randomize order", function(){
-    var firstCard = deck.first()
-    expect(deck.indexOf(firstCard)).toBe(0)
+    var firstCard = deck.at(0)
+    var secondCard = deck.at(1)
+    var thirdCard = deck.at(2)
     deck.shuffle()
-    expect(deck.indexOf(firstCard)).not.toBe(0)
+    var newIndexFirst = deck.indexOf(firstCard)
+    var newIndexSecond = deck.indexOf(secondCard)
+    var newIndexThird = deck.indexOf(thirdCard)
+    var samePlaces = newIndexFirst == 0 && newIndexSecond == 1 && newIndexThird == 2
+    expect(samePlaces).toBe(false)
+    var consecutive = 
+      Math.abs(newIndexSecond - newIndexFirst) == 1 
+      && Math.abs(newIndexThird - newIndexSecond) == 1
+    expect(consecutive).toBe(false)
   })
   
   it("can draw the first n cards", function(){
@@ -47,7 +56,14 @@ describe("Deck", function(){
       deck.reset([{suit: "hearts", rank: 7}, {suit: "spades", rank: 8}])
       expect(deck.length).toBe(2)
       var cards = deck.draw(3)
-      expect(cards.length).toBe(2)
+      expect(cards.length).toBe(2)      
+    })
+    
+    it("returns nothing if deck is empty", function(){
+      deck.reset()
+      expect(deck.length).toBe(0)
+      var cards = deck.draw()
+      expect(cards.length).toBe(0)
     })
   })
 })

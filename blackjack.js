@@ -15,14 +15,50 @@ var BlackjackGame = Backbone.Model.extend({
     inProgress: false
   },
   initialize: function(){
+    this.people = []
+    
     this._initDeck()
     this._initDealer()
     this._initPlayer()
+    
+    this.player.on("change:hand", this.refreshState, this)
+    this.dealer.on("change:hand", this.refreshState, this)
+    this.on("change:turn", this.onChangeTurn, this)
+        .on("end:turn", this.nextTurn, this)
   },
   deal: function(){
     this.set("inProgress", true)
     this.player.addCards(this.deck.draw(2))
-    this.dealer.addCards(this.deck.draw(1))
+    this.dealer.addCards(this.deck.draw())
+    this.set("turn", this.player)
+  },
+  hit: function(person){
+    person.addCards(this.deck.draw())
+    this.trigger("end:turn")
+  },
+  nextTurn: function(){
+    var currentPersonIndex = this.people.indexOf(this.get("turn"))
+    if (currentPersonIndex == this.people.length-1)
+      this.set("turn", this.people[0])
+    else
+      this.set("turn", this.people[currentPersonIndex+1])
+  },
+  onChangeTurn: function(){
+    if (this.get("turn") == this.dealer)
+      this.dealerTurn()
+  },
+  dealerTurn: function(){
+    if (this.dealer.get("hand").value() < 17)
+      this.dealer.addCards(this.deck.draw())
+      
+    this.trigger("end:turn")
+  },
+  refreshState: function(){
+    _.each([this.player, this.dealer], function(person){
+      if (person.get("hand").value() > 21) {
+        this.trigger("end:game")
+      }      
+    }, this)
   },
   _initDeck: function(){
     this.deck = new Deck()
@@ -33,10 +69,12 @@ var BlackjackGame = Backbone.Model.extend({
   _initDealer: function() {
     this.dealer = new Person()
     this.set("dealer", this.dealer)
+    this.people.push(this.dealer)
   },
   _initPlayer: function(){
     this.player = new Player()
     this.set("player", this.player)
+    this.people.push(this.player)
   },
   _setCardValues: function(){
     var aces = this.deck.findByRank("A")
@@ -52,17 +90,22 @@ var BlackjackView = Backbone.View.extend({
     this.dealerView = new DealerView({el: this.$(".dealer"), model: this.model.get("dealer")})
     
     // Game events
-    this.model.on("change:inProgress", this.onProgressChange, this)
-    
+    this.model
+      .on("change:inProgress", this.onProgressChange, this)
+      .on("end:game", this.onGameEnd, this)
     // Player events
     // this.model.player.on()
   },
   events: {
-    "click #deal" : "deal"
+    "click #deal" : "deal",
+    "click #hit"  : "hit"
   },
   deal: function(ev){
     if ($(ev.target).hasClass("disabled")) return;    
     this.model.deal()
+  },
+  hit: function(ev){
+    this.model.hit(this.model.player)
   },
   onProgressChange: function(inProgress){
     if (inProgress) {
@@ -72,6 +115,9 @@ var BlackjackView = Backbone.View.extend({
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$(".bet").addClass("disabled")
     }
+  },
+  onGameEnd: function(){
+    this.$(".alert").text("Game ended!")
   }
 })
 
@@ -193,6 +239,9 @@ var Deck = Backbone.Collection.extend({
 var Person = Backbone.Model.extend({
   initialize: function(){
     this.set("hand", new Hand())
+    this.get("hand")
+      .on("add", this.onHandChange, this)
+      .on("remove", this.onHandChange, this)
   },
   addCards: function(cards){
     if (!_.isArray(cards)) cards = [cards]
@@ -202,6 +251,9 @@ var Person = Backbone.Model.extend({
         this.get("hand").add(card)
       }      
     }, this)
+  },
+  onHandChange: function(){
+    this.trigger("change:hand")
   }
 })
 
@@ -210,9 +262,6 @@ var PersonView = Backbone.View.extend({
     this.handView = new HandView({el: this.$(".hand"), collection: this.model.get("hand")})
   }
 })
-
-// var Dealer = Person.extend({
-// })
 
 var DealerView = PersonView.extend({
   model: Person

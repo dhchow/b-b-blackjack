@@ -9,11 +9,11 @@ describe("Player", function(){
     expect(player.get("hand").length).toBe(0)
   })
   
-  it("starts with $500", function(){
+  it("starts with 500 credit", function(){
     expect(player.get("credit")).toBe(500)
   })
   
-  it("starts with $0 bet", function(){
+  it("starts with 0 credit bet", function(){
     expect(player.get("bet")).toBe(0)
   })
   
