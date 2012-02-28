@@ -1,15 +1,8 @@
-
 $(function(){
   window.blackjackGame = new BlackjackGame()
   window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
-  // window.testCard = new Card({suit: "hearts", rank: 5})
-  // window.testCardView = new CardView({model: testCard}).render().el
-  // window.testDeck = new Deck();
-  // window.testHand = new Hand([{suit: "diams", rank: 7}, {suit: "diams", rank: 8}])
-  // window.testHandView = new HandView({collection: testHand}).render().el  
-  // window.testPlayer = new Player()
-  // window.testPlayerView = new PlayerView({el: $(".player"), model: testPlayer})
 })
+
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
@@ -25,8 +18,10 @@ var BlackjackGame = Backbone.Model.extend({
     this.dealer.on("change:hand", this.refreshState, this)
     this.on("change:turn", this.onChangeTurn, this)
         .on("end:turn", this.nextTurn, this)
+        .on("end:game", this.endGame, this)
   },
   deal: function(){
+    this.reset()
     this.set("inProgress", true)
     this.player.addCards(this.deck.draw(2))
     this.dealer.addCards(this.deck.draw())
@@ -37,6 +32,8 @@ var BlackjackGame = Backbone.Model.extend({
     this.trigger("end:turn")
   },
   nextTurn: function(){
+    if (!this.get("inProgress")) return;
+    
     var currentPersonIndex = this.people.indexOf(this.get("turn"))
     if (currentPersonIndex == this.people.length-1)
       this.set("turn", this.people[0])
@@ -61,11 +58,29 @@ var BlackjackGame = Backbone.Model.extend({
       return handValue;
   },
   refreshState: function(){
-    _.each([this.player, this.dealer], function(person){
+    _.each(this.people, function(person){
       if (this.getHandValue(person) > 21) {
-        this.trigger("end:game")
+        this.trigger("end:game", {
+          winner: person == this.dealer ? this.player : this.dealer,
+          reason: person.get("name") + " busted!"
+        })
+      } else if (this.getHandValue(person) == 21) {
+        this.trigger("end:game", {
+          winner: person,
+          reason: person.get("name") + " got 21!"
+        })
       }      
     }, this)
+  },
+  reset: function(){
+    _.each(this.people, function(person){
+      this.deck.add(person.get("hand").models)
+      person.get("hand").reset()
+    }, this)
+    this.deck.shuffle()
+  },
+  endGame: function(){
+    this.set("inProgress", false)    
   },
   _initDeck: function(){
     this.deck = new Deck()
@@ -74,12 +89,12 @@ var BlackjackGame = Backbone.Model.extend({
     this.deck.shuffle()
   },
   _initDealer: function() {
-    this.dealer = new Person()
+    this.dealer = new Person({name: "Dealer"})
     this.set("dealer", this.dealer)
     this.people.push(this.dealer)
   },
   _initPlayer: function(){
-    this.player = new Player()
+    this.player = new Player({name: "You"})
     this.set("player", this.player)
     this.people.push(this.player)
   },
@@ -112,17 +127,26 @@ var BlackjackView = Backbone.View.extend({
   hit: function(ev){
     this.model.hit(this.model.player)
   },
-  onProgressChange: function(inProgress){
-    if (inProgress) {
+  onProgressChange: function(){
+    if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet").addClass("disabled")
+      this.$(".alert").hide()
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$(".bet").addClass("disabled")
     }
   },
-  onGameEnd: function(){
-    this.$(".alert").text("Game ended!")
+  onGameEnd: function(info){
+    var type = info.winner == this.model.player ? "success" : "danger"    
+    this.notify(type, info.reason)
+  },
+  notify: function(type, message){
+    this.$(".alert")
+      .text(message)
+      .removeClass("alert-success alert-error alert-info alert-danger")
+      .addClass("alert-"+type)
+      .show()
   }
 })
 

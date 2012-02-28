@@ -3,6 +3,8 @@ describe("BlackjackGame", function(){
   
   beforeEach(function() {
     game = new BlackjackGame()
+    // The listener normally resets the game if anyone busts
+    game.off("end:game")
   })
   
   it("has a new shuffled deck of cards", function(){
@@ -94,6 +96,16 @@ describe("BlackjackGame", function(){
       game.deal()
       expect(game.get("turn")).toBe(game.player)
     })
+    
+    describe("when players still have cards in hand", function() {
+      it("resets the game", function() {
+        spyOn(game, "reset").andCallThrough()
+        game.player.addCards(game.deck.draw())
+        game.dealer.addCards(game.deck.draw())
+        game.deal()
+        expect(game.reset).toHaveBeenCalled()
+      })
+    })
   })  
   
   describe("#refreshState", function(){
@@ -112,6 +124,7 @@ describe("BlackjackGame", function(){
     it("sets turn to next person", function() {
       var person1 = new Person()
       var person2 = new Person()
+      game.set("inProgress", true)
       game.people = [person1, person2]
       game.set("turn", person1)
       game.nextTurn()
@@ -130,6 +143,7 @@ describe("BlackjackGame", function(){
     describe("when next turn is dealer's", function() {
       it("calls #dealerTurn", function() {
         spyOn(game, "dealerTurn")
+        game.set("inProgress", true)
         game.set("turn", game.player)
         game.nextTurn()
         expect(game.get("turn")).toBe(game.dealer)
@@ -140,8 +154,13 @@ describe("BlackjackGame", function(){
   
   describe("#dealerTurn", function() {
     describe("when dealer's hand value is < 17", function() {
-      it("dealer hits and ends turn", function() {
-        game.dealer.addCards([new Card({suit: "hearts", rank: 6}), new Card({suit: "spades", rank: 10})])
+      it("dealer hits", function() {
+        var cards = [
+          game.deck.find(function(card){ return card.get("rank") == 6}),
+          game.deck.find(function(card){ return card.get("rank") == 10})
+        ]
+        game.dealer.addCards(cards)
+        game.deck.remove(cards)
         spyOn(game.deck, "draw").andCallThrough()
         spyOn(game.dealer, "addCards").andCallThrough()
         game.dealerTurn()
@@ -152,7 +171,7 @@ describe("BlackjackGame", function(){
     })
     
     describe("when dealer's hand value is >= 17", function() {
-      it("dealer stands and ends turn", function() {
+      it("dealer stands", function() {
         game.dealer.addCards([new Card({suit: "hearts", rank: 7}), new Card({suit: "spades", rank: 10})])
         spyOn(game.deck, "draw").andCallThrough()
         spyOn(game.dealer, "addCards").andCallThrough()
@@ -202,6 +221,31 @@ describe("BlackjackGame", function(){
       expect(game.getHandValue(person)).toBe(16)
       person.addCards(new Card({suit: "hearts", rank: 10}))
       expect(game.getHandValue(person)).toBe(16)
+    })
+  })
+  
+  describe("#endGame", function() {
+    it("marks game as not in progress", function() {
+      game.set("inProgress", true)
+      game.endGame()
+      expect(game.get("inProgress")).toBe(false)
+    })    
+  })
+  
+  describe("#reset", function() {
+    it("returns people's cards to the deck", function() {
+      game.player.addCards(game.deck.draw(2))
+      game.dealer.addCards(game.deck.draw(2))
+      expect(game.player.get("hand").length).toBe(2)
+      expect(game.dealer.get("hand").length).toBe(2)
+      expect(game.deck.length).toBe(48)
+      game.reset()
+      expect(game.deck.length).toBe(52)
+    })
+    it("reshuffles the deck", function() {
+      var oldFirstCard = game.deck.first()
+      game.reset()
+      expect(game.deck.first()).not.toBe(oldFirstCard)
     })
   })
 })
