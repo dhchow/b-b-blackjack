@@ -118,6 +118,16 @@ describe("BlackjackGame", function(){
         expect(loseCallback).toHaveBeenCalled()
       })
     })
+    describe("when dealer's hand is over 21", function() {
+      it("triggers end:game event", function() {
+        throw "implement me"        
+      })
+    })
+    describe("when dealer and player are both standing", function() {
+      it("triggers end:game event", function() {
+        throw "implement me"
+      })
+    })
   })
   
   describe("#nextTurn", function() {
@@ -179,6 +189,7 @@ describe("BlackjackGame", function(){
         expect(game.dealer.addCards).not.toHaveBeenCalled()
         expect(game.deck.draw).not.toHaveBeenCalled()
         expect(game.dealer.get("hand").length).toBe(2)
+        expect(game.dealer.get("standing")).toBe(true)
       })
     })  
     
@@ -247,5 +258,54 @@ describe("BlackjackGame", function(){
       game.reset()
       expect(game.deck.first()).not.toBe(oldFirstCard)
     })
+  })
+  
+  describe("#stand", function() {
+    it("ends person's turn", function() {
+      spyOn(game, "trigger")
+      var person = new Person()
+      game.stand(person)
+      expect(game.trigger).toHaveBeenCalledWith("end:turn")
+    })
+    it("marks person as standing", function() {
+      var person = new Person()
+      game.stand(person)
+      expect(person.get("standing")).toBe(true)
+    })
+  })
+  
+  describe("#onChangeTurn", function() {
+    describe("when it's the dealer's turn", function() {
+      it("calls #dealerTurn", function() {
+        spyOn(game, "dealerTurn")
+        game.set("turn", game.dealer)
+        game.onChangeTurn()
+        expect(game.dealerTurn).toHaveBeenCalled()
+      })
+    })
+    
+    describe("when it's a person's turn", function() {
+      var person
+      beforeEach(function() {
+        person = new Person()
+        game.set("turn", person)
+      })
+      describe("when person is standing", function() {
+        it("ends the person's turn", function() {
+          spyOn(game, "trigger")
+          person.set("standing", true)
+          game.onChangeTurn()
+          expect(game.trigger).toHaveBeenCalledWith("end:turn")
+        })
+      })
+      describe("when person is not standing", function() {
+        it("does not end the person's turn", function() {
+          spyOn(game, "trigger")
+          game.onChangeTurn()
+          expect(game.trigger).not.toHaveBeenCalledWith("end:turn")
+        })
+      })
+    })
+    
   })
 })

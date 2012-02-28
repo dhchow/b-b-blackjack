@@ -14,41 +14,63 @@ var BlackjackGame = Backbone.Model.extend({
     this._initDealer()
     this._initPlayer()
     
-    this.player.on("change:hand", this.refreshState, this)
-    this.dealer.on("change:hand", this.refreshState, this)
     this.on("change:turn", this.onChangeTurn, this)
-        .on("end:turn", this.nextTurn, this)
+        .on("end:turn", this.refreshState, this)
         .on("end:game", this.endGame, this)
   },
   deal: function(){
+    console.log("DEEEEEAL")
     this.reset()
-    this.set("inProgress", true)
     this.player.addCards(this.deck.draw(2))
     this.dealer.addCards(this.deck.draw())
-    this.set("turn", this.player)
+    this.set("inProgress", true)
+    this.set("turn", this.dealer, {silent: true})
+    this.refreshState()
   },
   hit: function(person){
     person.addCards(this.deck.draw())
+    this.trigger("end:turn")
+  },
+  stand: function(person){
+    person.set("standing", true, {silent: true})
     this.trigger("end:turn")
   },
   nextTurn: function(){
     if (!this.get("inProgress")) return;
     
     var currentPersonIndex = this.people.indexOf(this.get("turn"))
-    if (currentPersonIndex == this.people.length-1)
+    // THE KEY TO RULE THEM ALL
+    this.unset("turn")
+    if (currentPersonIndex == this.people.length-1) {
       this.set("turn", this.people[0])
-    else
+    } else {
       this.set("turn", this.people[currentPersonIndex+1])
+    }
   },
   onChangeTurn: function(){
-    if (this.get("turn") == this.dealer)
-      this.dealerTurn()
+    console.log("  changed attrs 2", this.changedAttributes())
+
+    if (this.get("turn")) {
+      var previous = this.previous("turn")
+      // console.log("  previous", previous ? previous.get("name") : previous)
+      console.log("->", this.get("turn").get("name"), this.get("turn").get("standing"))
+      if (this.get("turn").get("standing")) {
+        this.trigger("end:turn")
+      }
+      else if (this.get("turn") == this.dealer){
+        this.dealerTurn()
+      }
+    }
   },
   dealerTurn: function(){
-    if (this.getHandValue(this.dealer) < 17)
-      this.dealer.addCards(this.deck.draw())
-      
-    this.trigger("end:turn")
+    console.log("dealer turn! hand value", this.getHandValue(this.dealer))
+    if (this.getHandValue(this.dealer) < 17) {
+      console.log("dealer hits")
+      this.hit(this.dealer)
+    } else {
+      console.log("dealer stands")
+      this.stand(this.dealer)
+    }
   },
   getHandValue: function(person){
     var handValue = person.get("hand").value()
@@ -58,44 +80,68 @@ var BlackjackGame = Backbone.Model.extend({
       return handValue;
   },
   refreshState: function(){
-    _.each(this.people, function(person){
-      if (this.getHandValue(person) > 21) {
-        this.trigger("end:game", {
-          winner: person == this.dealer ? this.player : this.dealer,
-          reason: person.get("name") + " busted!"
-        })
-      } else if (this.getHandValue(person) == 21) {
-        this.trigger("end:game", {
-          winner: person,
-          reason: person.get("name") + " got 21!"
-        })
-      }      
-    }, this)
+    var endGame = false
+    var winner
+    var allStanding = _.all(this.people, function(person){ return person.get("standing") })
+    console.log("\tall standing?", allStanding)
+    
+    if ( allStanding ) {
+      endGame = true
+      winner = _.max(this.people, function(person){ return this.getHandValue(person)}, this)
+      reason = winner.get("name") + " won with a higher hand"
+      console.log("WINNER!", winner)
+    } else {
+      _.each(this.people, function(person){
+        console.log("\t" + person.get("name"), "hand value", this.getHandValue(person))
+        if (this.getHandValue(person) > 21) {
+          endGame = true
+          winner = person == this.dealer ? this.player : this.dealer
+          reason = person.get("name") + " busted!"
+        } else if (this.getHandValue(person) == 21) {
+          endGame = true
+          winner = person
+          reason = person.get("name") + " got 21!"
+        }
+      }, this)
+    }
+    
+    if (endGame) {
+      this.trigger("end:game", {
+        winner: winner,
+        reason: reason
+      })
+    } else {
+      console.log("nextTurn()")
+      this.nextTurn()
+    }
   },
   reset: function(){
     _.each(this.people, function(person){
       this.deck.add(person.get("hand").models)
       person.get("hand").reset()
+      // TODO needs test
+      person.set("standing", false, {silent: true})
     }, this)
     this.deck.shuffle()
+    this.set("inProgress", false, {silent: true})
   },
   endGame: function(){
     this.set("inProgress", false)    
   },
   _initDeck: function(){
     this.deck = new Deck()
-    this.set("deck", this.deck)
+    this.set("deck", this.deck, {silent: true})
     this._setCardValues()
     this.deck.shuffle()
   },
   _initDealer: function() {
     this.dealer = new Person({name: "Dealer"})
-    this.set("dealer", this.dealer)
+    this.set("dealer", this.dealer, {silent: true})
     this.people.push(this.dealer)
   },
   _initPlayer: function(){
     this.player = new Player({name: "You"})
-    this.set("player", this.player)
+    this.set("player", this.player, {silent: true})
     this.people.push(this.player)
   },
   _setCardValues: function(){
@@ -115,25 +161,34 @@ var BlackjackView = Backbone.View.extend({
     this.model
       .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
+      
+    this.$("#hit,#stand").addClass("disabled")
   },
   events: {
-    "click #deal" : "deal",
-    "click #hit"  : "hit"
+    "click #deal:not(.disabled)"   : "deal",
+    "click #hit:not(.disabled)"    : "hit",
+    "click #stand:not(.disabeld)"  : "stand"
   },
   deal: function(ev){
-    if ($(ev.target).hasClass("disabled")) return;    
+    this.$("#hit,#stand").removeClass("disabled")
     this.model.deal()
   },
   hit: function(ev){
     this.model.hit(this.model.player)
   },
+  stand: function(ev){
+    $("#hit").addClass("disabled")
+    this.model.stand(this.model.player)
+  },
   onProgressChange: function(){
+    console.log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet").addClass("disabled")
       this.$(".alert").hide()
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
+      this.$("#hit,#stand").addClass("disabled")
       this.$(".bet").addClass("disabled")
     }
   },
@@ -325,8 +380,6 @@ var PlayerView = PersonView.extend({
   
   events: {
     "click .bet .btn" : "bet"
-    // "click #hit"      : "hit"
-    // "click #stand"    : "stand"
   },
     
   bet: function(ev){
