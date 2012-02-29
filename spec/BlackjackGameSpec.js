@@ -40,20 +40,13 @@ describe("BlackjackGame", function(){
     expect(game.get("turn")).not.toBeDefined()
   })
   
-  it("refreshes game state when player or dealer get new cards", function(){
+  it("refreshes game state after every turn", function(){
     spyOn(BlackjackGame.prototype, "refreshState")
     game = new BlackjackGame
-    game.player.trigger("change:hand")
+    game.trigger("end:turn")
     expect(game.refreshState).toHaveBeenCalled()
   })
-  
-  it("refreshes game state when layer or dealer get new cards", function(){
-    spyOn(BlackjackGame.prototype, "refreshState")
-    game = new BlackjackGame
-    game.dealer.trigger("change:hand")
-    expect(game.refreshState).toHaveBeenCalled()    
-  })
-  
+    
   it("calls #nextTurn when person ends their turn", function(){
     spyOn(BlackjackGame.prototype, "nextTurn")
     var diffGame = new BlackjackGame
@@ -112,20 +105,29 @@ describe("BlackjackGame", function(){
     describe("when player's hand is over 21", function() {
       it("triggers end:game event", function() {
         spyOn(game.player.get("hand"), "value").andReturn(22)
-        var loseCallback = jasmine.createSpy()
-        game.on("end:game", loseCallback)
+        var endCallback = jasmine.createSpy()
+        game.on("end:game", endCallback)
         game.refreshState.call(game)
-        expect(loseCallback).toHaveBeenCalled()
+        expect(endCallback).toHaveBeenCalled()
       })
     })
     describe("when dealer's hand is over 21", function() {
       it("triggers end:game event", function() {
-        throw "implement me"        
+        spyOn(game.dealer.get("hand"), "value").andReturn(22)
+        var endCallback = jasmine.createSpy()
+        game.on("end:game", endCallback)
+        game.refreshState.call(game)
+        expect(endCallback).toHaveBeenCalled()     
       })
     })
     describe("when dealer and player are both standing", function() {
       it("triggers end:game event", function() {
-        throw "implement me"
+        game.dealer.set("standing", true)
+        game.player.set("standing", true)
+        var endCallback = jasmine.createSpy()
+        game.on("end:game", endCallback)
+        game.refreshState.call(game)
+        expect(endCallback).toHaveBeenCalled()  
       })
     })
   })

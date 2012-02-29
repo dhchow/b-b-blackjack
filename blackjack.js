@@ -39,7 +39,7 @@ var BlackjackGame = Backbone.Model.extend({
     if (!this.get("inProgress")) return;
     
     var currentPersonIndex = this.people.indexOf(this.get("turn"))
-    // THE KEY TO RULE THEM ALL
+    // This ensures that Backbone will trigger the change event every time
     this.unset("turn")
     if (currentPersonIndex == this.people.length-1) {
       this.set("turn", this.people[0])
