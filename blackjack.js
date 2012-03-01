@@ -72,9 +72,11 @@ var BlackjackGame = Backbone.Model.extend({
   getHandValue: function(person){
     var handValue = person.get("hand").value()
     if (handValue > 21 && person.get("hand").hasRank("A")) {
-      return handValue - 10;
-    } else
-      return handValue;
+      var aces = person.get("hand").filter(function(card){ return card.get("rank") == "A"})
+      return handValue - (10 * aces.length);
+    } else {
+      return handValue
+    }
   },
   hasBlackjack: function(person){
     return person.get("hand").length == 2 && this.getHandValue(person) == 21
@@ -117,7 +119,7 @@ var BlackjackGame = Backbone.Model.extend({
             }
           } else {
             winner = person
-            reason = person.get("name") + " got 21!"
+            reason = person.get("name") + " got " + (this.hasBlackjack(person) ? "a blackjack!" : "21!")
           }
         }
       }, this)
@@ -175,7 +177,9 @@ var BlackjackView = Backbone.View.extend({
       .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
       
-    this.$("#hit,#stand").addClass("disabled")
+    this.model.player.on("change:bet", this.onBet, this)
+      
+    this.$("#deal,#hit,#stand").addClass("disabled")
   },
   events: {
     "click #deal:not(.disabled)"   : "deal",
@@ -193,6 +197,9 @@ var BlackjackView = Backbone.View.extend({
     $("#hit").addClass("disabled")
     this.model.stand(this.model.player)
   },
+  onBet: function(){
+    this.$("#deal,#hit,#stand").removeClass("disabled")
+  },
   onProgressChange: function(){
     console.log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
@@ -206,13 +213,14 @@ var BlackjackView = Backbone.View.extend({
     }
   },
   onGameEnd: function(info){
-    var type = info.winner == this.model.player ? "success" : "danger"    
+    var type = info.winner == this.model.player ? "success" : info.winner == null ? "warning" : "danger"    
     this.notify(type, info.reason)
+    this.$("#deal,#hit,#stand").addClass("disabled")
   },
   notify: function(type, message){
     this.$(".alert")
       .text(message)
-      .removeClass("alert-success alert-error alert-info alert-danger")
+      .removeClass("alert-success alert-error alert-info alert-danger alert-warning")
       .addClass("alert-"+type)
       .show()
   }

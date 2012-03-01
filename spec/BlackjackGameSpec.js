@@ -322,10 +322,12 @@ describe("BlackjackGame", function(){
         new Card({suit: "spades", rank: 3})
       ])
       expect(game.getHandValue(person)).toBe(5)
-      person.addCards(new Card({suit: "hearts", rank: "A"}).set("value", 11))
+      person.addCards(new Card({suit: "hearts", rank: "A"}))
       expect(game.getHandValue(person)).toBe(16)
       person.addCards(new Card({suit: "hearts", rank: 10}))
       expect(game.getHandValue(person)).toBe(16)
+      person.addCards(new Card({suit: "spades", rank: "A"}))
+      expect(game.getHandValue(person)).toBe(17)
     })
   })
   
