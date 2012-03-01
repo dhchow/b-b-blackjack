@@ -93,7 +93,7 @@ var BlackjackGame = Backbone.Model.extend({
     if ( allStanding ) {
       if (this.player.get("hand").value() == this.dealer.get("hand").value()) {
         winner = null
-        reason = "Push!"
+        reason = "Push"
       } else {
         winner = _.max(this.people, function(person){ return this.getHandValue(person)}, this)
         reason = winner.get("name") + " won with a higher hand"
@@ -111,7 +111,7 @@ var BlackjackGame = Backbone.Model.extend({
             if (this.hasBlackjack(person)) {
               if (this.hasBlackjack(otherPerson)) {
                 winner = null
-                reason = "Push!"              
+                reason = "Push"              
               } else {
                 winner = person
                 reason = person.get("name") + " got a blackjack!"
@@ -134,12 +134,10 @@ var BlackjackGame = Backbone.Model.extend({
   },
   reset: function(){
     _.each(this.people, function(person){
-      this.deck.add(person.get("hand").models)
+      this.deck.discard(person.get("hand").models)
       person.get("hand").reset()
-      // TODO needs test
       person.set("standing", false, {silent: true})
     }, this)
-    this.deck.shuffle()
     this.set("inProgress", false, {silent: true})
   },
   endGame: function(winner, reason){
@@ -178,6 +176,8 @@ var BlackjackView = Backbone.View.extend({
       .on("end:game", this.onGameEnd, this)
       
     this.model.player.on("change:bet", this.onBet, this)
+    
+    this.model.deck.on("shuffled", this.onShuffle, this)
       
     this.$("#deal,#hit,#stand").addClass("disabled")
   },
@@ -205,7 +205,7 @@ var BlackjackView = Backbone.View.extend({
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet").addClass("disabled")
-      this.$(".alert").hide()
+      this.$(".alert").text("").addClass("none")
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$("#hit,#stand").addClass("disabled")
@@ -217,10 +217,13 @@ var BlackjackView = Backbone.View.extend({
     this.notify(type, info.reason)
     this.$("#deal,#hit,#stand").addClass("disabled")
   },
+  onShuffle: function(){
+    this.notify("info", "Deck reshuffled")
+  },
   notify: function(type, message){
     this.$(".alert")
       .text(message)
-      .removeClass("alert-success alert-error alert-info alert-danger alert-warning")
+      .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
       .addClass("alert-"+type)
       .show()
   }
@@ -314,6 +317,7 @@ var HandView = Backbone.View.extend({
 var Deck = Backbone.Collection.extend({
   model: Card,
   initialize: function(){    
+    this._discard = []
     _.each(this.model.SUITS, function(s){
       _.each(this.model.RANKS, function(r){
         this.add({suit: s, rank: r})
@@ -324,7 +328,12 @@ var Deck = Backbone.Collection.extend({
     var drawn = []
     number = number || 1
     // .pop() is still making its way into backbone RC
-    while(number-- && this.length) {
+    while(number--) {
+      if (!this.length) {
+        this.add(this._discard)
+        this.shuffle()
+        this._discard = []
+      }
       var first = this.first()
       this.remove(first)
       drawn.push(first)
@@ -338,7 +347,11 @@ var Deck = Backbone.Collection.extend({
   shuffle: function(){
     var shuffled = Backbone.Collection.prototype.shuffle.call(this)
     this.models = shuffled
+    this.trigger("shuffled")
     return this
+  },
+  discard: function(cards){
+    this._discard = this._discard.concat(cards)
   }
 })
 

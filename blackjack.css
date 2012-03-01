@@ -70,6 +70,10 @@ ul.cards li {
   font-size: 18px;
 }
 
+.alert.none {
+  background-color: transparent;
+  border: none;
+}
 /*.actions {
   text-align: center;
 }*/

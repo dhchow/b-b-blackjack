@@ -52,18 +52,23 @@ describe("Deck", function(){
   })
     
   describe("when asked to draw more cards than it has", function(){
-    it("draws all remaining cards", function(){
-      deck.reset([{suit: "hearts", rank: 7}, {suit: "spades", rank: 8}])
+    it("refreshes the deck with the discard pile shuffled", function() {
+      var cards = deck.draw(50)
+      deck.discard(cards)
       expect(deck.length).toBe(2)
-      var cards = deck.draw(3)
-      expect(cards.length).toBe(2)      
+      var three = deck.draw(3)
+      expect(three.length).toBe(3)
+      expect(deck._discard.length).toBe(0)
+      expect(deck.length).toBe(49)
     })
-    
-    it("returns nothing if deck is empty", function(){
-      deck.reset()
-      expect(deck.length).toBe(0)
-      var cards = deck.draw()
-      expect(cards.length).toBe(0)
+  })
+  
+  describe("#discard", function() {
+    it("adds cards to discard pile", function() {
+      var cards = deck.draw(3)
+      deck.discard(cards)
+      expect(deck._discard.length).toBe(3)
+      expect(deck.length).toBe(49)
     })
   })
 })

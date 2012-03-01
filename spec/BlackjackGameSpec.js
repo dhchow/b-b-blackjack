@@ -363,19 +363,26 @@ describe("BlackjackGame", function(){
   })
   
   describe("#reset", function() {
-    it("returns people's cards to the deck", function() {
+    it("returns played cards to discard deck", function() {
       game.player.addCards(game.deck.draw(2))
       game.dealer.addCards(game.deck.draw(2))
-      expect(game.player.get("hand").length).toBe(2)
-      expect(game.dealer.get("hand").length).toBe(2)
+      game.reset()
       expect(game.deck.length).toBe(48)
-      game.reset()
-      expect(game.deck.length).toBe(52)
+      expect(game.deck._discard.length).toBe(4)
+      expect(game.player.get("hand").length).toBe(0)
+      expect(game.dealer.get("hand").length).toBe(0)
     })
-    it("reshuffles the deck", function() {
-      var oldFirstCard = game.deck.first()
+    
+    it("resets people's standing status", function() {
+      game.player.set("standing", true)
       game.reset()
-      expect(game.deck.first()).not.toBe(oldFirstCard)
+      expect(game.player.get("standing")).toBe(false)
+    })
+    
+    it("marks game as not in progress", function() {
+      game.set("inProgress", true)
+      game.reset()
+      expect(game.get("inProgress")).toBe(false)
     })
   })
   
