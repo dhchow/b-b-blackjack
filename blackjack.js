@@ -13,7 +13,7 @@ var BlackjackGame = Backbone.Model.extend({
     this._initDeck()
     this._initDealer()
     this._initPlayer()
-    
+        
     this.on("change:turn", this.onChangeTurn, this)
   },
   deal: function(){
@@ -380,10 +380,14 @@ var Player = Person.extend({
 
 var PlayerView = PersonView.extend({
   tagName: "div",
+  model: Player,
   
-  // initialize: function(){
-  //     this.model.on("change:credit", this.updateCredit, this)
-  //   },
+  initialize: function(){
+    PersonView.prototype.initialize.call(this)
+    this.model
+      .on("change:credit", this.updateCredit, this)
+      .on("change:bet", this.updateBet, this)
+  },
   
   events: {
     "click .bet .btn" : "bet"
@@ -394,9 +398,16 @@ var PlayerView = PersonView.extend({
     var target = $(ev.target)
     target.addClass("active")
     this.model.set("bet", target.data("value"))
-  }
+  },
   
-  // updateCredit: function(credit){
-  //   this.$(".total").text(credit)
-  // }
+  updateCredit: function(model, credit){
+    this.$(".total").text(credit)
+  },
+  
+  updateBet: function(model, bet){
+    console.log("update bet")
+    if (!bet) {
+      this.$(".bet .btn").removeClass("active")
+    }
+  }
 })
