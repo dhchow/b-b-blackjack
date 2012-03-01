@@ -214,6 +214,20 @@ describe("BlackjackGame", function(){
         new Card({suit: "diams", rank: "Q"})
       ])
       expect(game.hasBlackjack(person)).toBe(false)
+      
+      var person2 = new Person()
+      person2.addCards([
+        new Card({suit: "spades", rank: "J"}),
+        new Card({suit: "diams", rank: "10"}),
+        new Card({suit: "diams", rank: "A"})
+      ])
+      expect(game.hasBlackjack(person2)).toBe(false)
+      
+      var person3 = new Person()
+      person3.addCards([
+        new Card({suit: "spades", rank: "J"})
+      ])
+      expect(game.hasBlackjack(person3)).toBe(false)
     })
   })
   
