@@ -180,7 +180,7 @@ var BlackjackView = Backbone.View.extend({
   events: {
     "click #deal:not(.disabled)"   : "deal",
     "click #hit:not(.disabled)"    : "hit",
-    "click #stand:not(.disabeld)"  : "stand"
+    "click #stand:not(.disabled)"  : "stand"
   },
   deal: function(ev){
     this.$("#hit,#stand").removeClass("disabled")
