@@ -11,7 +11,7 @@ describe("Hand", function(){
       new Card({suit: "hearts", rank: 9}), 
       new Card({suit: "spades", rank: "J"})
     ])
-    expect(hand.value()).toBe(20)
+    expect(hand.value()).toBe(19)
   })
   
   describe("#hasRank", function() {

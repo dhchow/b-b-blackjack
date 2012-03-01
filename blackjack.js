@@ -50,11 +50,7 @@ var BlackjackGame = Backbone.Model.extend({
     }
   },
   onChangeTurn: function(){
-    console.log("  changed attrs 2", this.changedAttributes())
-
     if (this.get("turn")) {
-      var previous = this.previous("turn")
-      // console.log("  previous", previous ? previous.get("name") : previous)
       console.log("->", this.get("turn").get("name"), this.get("turn").get("standing"))
       if (this.get("turn").get("standing")) {
         this.endTurn()
@@ -80,33 +76,54 @@ var BlackjackGame = Backbone.Model.extend({
     } else
       return handValue;
   },
+  hasBlackjack: function(person){
+    return person.get("hand").length == 2 && this.getHandValue(person) == 21
+  },
+  _otherPerson: function(person){
+    var other = _.without(this.people, person)
+    return other.length ? other[0] : null
+  },
   refreshState: function(){
-    var endGame = false
-    var winner
+    var winner, reason
     var allStanding = _.all(this.people, function(person){ return person.get("standing") })
     console.log("\tall standing?", allStanding)
     
     if ( allStanding ) {
-      endGame = true
-      winner = _.max(this.people, function(person){ return this.getHandValue(person)}, this)
-      reason = winner.get("name") + " won with a higher hand"
+      if (this.player.get("hand").value() == this.dealer.get("hand").value()) {
+        winner = null
+        reason = "Push!"
+      } else {
+        winner = _.max(this.people, function(person){ return this.getHandValue(person)}, this)
+        reason = winner.get("name") + " won with a higher hand"
+      }
       console.log("WINNER!", winner)
     } else {
       _.each(this.people, function(person){
         console.log("\t" + person.get("name"), "hand value", this.getHandValue(person))
         if (this.getHandValue(person) > 21) {
-          endGame = true
           winner = person == this.dealer ? this.player : this.dealer
           reason = person.get("name") + " busted!"
         } else if (this.getHandValue(person) == 21) {
-          endGame = true
-          winner = person
-          reason = person.get("name") + " got 21!"
+          var otherPerson = this._otherPerson(person)
+          if (this.getHandValue(otherPerson) == 21) {
+            if (this.hasBlackjack(person)) {
+              if (this.hasBlackjack(otherPerson)) {
+                winner = null
+                reason = "Push!"              
+              } else {
+                winner = person
+                reason = person.get("name") + " got a blackjack!"
+              }
+            }
+          } else {
+            winner = person
+            reason = person.get("name") + " got 21!"
+          }
         }
       }, this)
     }
     
-    if (endGame) {
+    if (winner || reason) {
       this.endGame(winner, reason)
     } else {
       console.log("nextTurn()")
@@ -134,7 +151,6 @@ var BlackjackGame = Backbone.Model.extend({
   _initDeck: function(){
     this.deck = new Deck()
     this.set("deck", this.deck, {silent: true})
-    this._setCardValues()
     this.deck.shuffle()
   },
   _initDealer: function() {
@@ -146,12 +162,6 @@ var BlackjackGame = Backbone.Model.extend({
     this.player = new Player({name: "You"})
     this.set("player", this.player, {silent: true})
     this.people.push(this.player)
-  },
-  _setCardValues: function(){
-    var aces = this.deck.findByRank("A")
-    var tens = this.deck.findByRank(["J", "Q", "K"])
-    _.each(aces, function(card){ card.set("value", 11) })
-    _.each(tens, function(card){ card.set("value", 10) })
   }
 })
 var BlackjackView = Backbone.View.extend({
@@ -219,10 +229,8 @@ var Card = Backbone.Model.extend({
   setValue: function(){
     var rank = this.get("rank")
     var value = rank
-    if (rank == "A") value = 1
-    else if (rank == "J") value = 11
-    else if (rank == "Q") value = 12
-    else if (rank == "K") value = 13
+    if (rank == "A") value = 11
+    else if (rank == "J" || rank == "Q" || rank == "K") value = 10
     
     this.set("value", value)
   }

@@ -6,20 +6,20 @@ describe("Card", function(){
     expect(card.get("id")).toBe("2hearts")
   })
   
-  it("derives its value based on rank", function(){
+  it("assigns values based on blackjack values", function(){
     card = new Card({suit: "hearts", rank: "A"})
-    expect(card.get("value")).toBe(1)
+    expect(card.get("value")).toBe(11)
 
     card = new Card({suit: "hearts", rank: 7})
     expect(card.get("value")).toBe(7)
       
     card = new Card({suit: "hearts", rank: "J"})
-    expect(card.get("value")).toBe(11)
+    expect(card.get("value")).toBe(10)
     
     card = new Card({suit: "hearts", rank: "Q"})
-    expect(card.get("value")).toBe(12)  
+    expect(card.get("value")).toBe(10)  
     
     card = new Card({suit: "hearts", rank: "K"})
-    expect(card.get("value")).toBe(13)  
+    expect(card.get("value")).toBe(10)  
   })
 })
