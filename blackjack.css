@@ -70,10 +70,24 @@ ul.cards li {
   font-size: 18px;
 }
 
+.alert {
+  text-align: center;
+  font-size: 18px;
+}
+
 .alert.none {
   background-color: transparent;
   border: none;
 }
+
 /*.actions {
   text-align: center;
 }*/
+
+.alert-container {
+  height: 50px;
+}
+
+.hide {
+  display: none;
+}
