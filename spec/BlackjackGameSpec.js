@@ -15,7 +15,7 @@ describe("BlackjackGame", function(){
     expect(game.deck.shuffle).toHaveBeenCalled()
   })
   
-  it("overrides non-number cards proper blackjack values", function() {
+  it("overrides non-number cards with proper blackjack values", function() {
     var aces = game.deck.findByRank("A")
     var tens = game.deck.findByRank(["J","Q","K"])
     
@@ -39,18 +39,11 @@ describe("BlackjackGame", function(){
   it("no one is assigned a turn", function() {
     expect(game.get("turn")).not.toBeDefined()
   })
-  
-  it("refreshes game state after every turn", function(){
-    spyOn(BlackjackGame.prototype, "refreshState")
-    game = new BlackjackGame
-    game.trigger("end:turn")
-    expect(game.refreshState).toHaveBeenCalled()
-  })
-    
+      
   it("calls #nextTurn when person ends their turn", function(){
     spyOn(BlackjackGame.prototype, "nextTurn")
     var diffGame = new BlackjackGame
-    diffGame.trigger("end:turn")
+    diffGame.endTurn()
     expect(diffGame.nextTurn).toHaveBeenCalled()
   })
   
@@ -145,13 +138,6 @@ describe("BlackjackGame", function(){
       expect(game.get("turn")).toBe(person1)
     })    
     
-    /*
-      TODO give each person its own AI method. Dealer will have a method that will be called on his every turn.
-      The player's AI method will be empty, allowing real players to make their move.
-      A new event should probably be created called "end:turn" which will trigger #nextTurn to be called.
-      #nextTurn should call the next person's UI method
-    */
-    
     describe("when next turn is dealer's", function() {
       it("calls #dealerTurn", function() {
         spyOn(game, "dealerTurn")
@@ -242,7 +228,23 @@ describe("BlackjackGame", function(){
       game.set("inProgress", true)
       game.endGame()
       expect(game.get("inProgress")).toBe(false)
-    })    
+    })  
+    
+    describe("when player is the winner", function() {
+      it("increases player's credit by bet value", function() {
+        game.player.set("bet", 50)
+        game.endGame(game.player, "Got 21")
+        expect(game.player.get("credit")).toBe(550)
+      })
+    })
+    
+    describe("when player is not the winner", function() {
+      it("decreases player's credit by bet value", function() {
+        game.player.set("bet", 50)
+        game.endGame(game.dealer, "Got 21")
+        expect(game.player.get("credit")).toBe(450)
+      })
+    })
   })
   
   describe("#reset", function() {

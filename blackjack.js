@@ -15,8 +15,6 @@ var BlackjackGame = Backbone.Model.extend({
     this._initPlayer()
     
     this.on("change:turn", this.onChangeTurn, this)
-        .on("end:turn", this.refreshState, this)
-        .on("end:game", this.endGame, this)
   },
   deal: function(){
     console.log("DEEEEEAL")
@@ -29,11 +27,15 @@ var BlackjackGame = Backbone.Model.extend({
   },
   hit: function(person){
     person.addCards(this.deck.draw())
-    this.trigger("end:turn")
+    this.endTurn()
   },
   stand: function(person){
     person.set("standing", true, {silent: true})
+    this.endTurn()
+  },
+  endTurn: function(){
     this.trigger("end:turn")
+    this.refreshState()
   },
   nextTurn: function(){
     if (!this.get("inProgress")) return;
@@ -55,9 +57,8 @@ var BlackjackGame = Backbone.Model.extend({
       // console.log("  previous", previous ? previous.get("name") : previous)
       console.log("->", this.get("turn").get("name"), this.get("turn").get("standing"))
       if (this.get("turn").get("standing")) {
-        this.trigger("end:turn")
-      }
-      else if (this.get("turn") == this.dealer){
+        this.endTurn()
+      } else if (this.get("turn") == this.dealer){
         this.dealerTurn()
       }
     }
@@ -106,10 +107,7 @@ var BlackjackGame = Backbone.Model.extend({
     }
     
     if (endGame) {
-      this.trigger("end:game", {
-        winner: winner,
-        reason: reason
-      })
+      this.endGame(winner, reason)
     } else {
       console.log("nextTurn()")
       this.nextTurn()
@@ -125,8 +123,13 @@ var BlackjackGame = Backbone.Model.extend({
     this.deck.shuffle()
     this.set("inProgress", false, {silent: true})
   },
-  endGame: function(){
-    this.set("inProgress", false)    
+  endGame: function(winner, reason){
+    this.set("inProgress", false)
+    winner == this.player ? this.player.win() : this.player.lose()
+    this.trigger("end:game", {
+      winner: winner,
+      reason: reason
+    })  
   },
   _initDeck: function(){
     this.deck = new Deck()
@@ -378,6 +381,10 @@ var Player = Person.extend({
 var PlayerView = PersonView.extend({
   tagName: "div",
   
+  // initialize: function(){
+  //     this.model.on("change:credit", this.updateCredit, this)
+  //   },
+  
   events: {
     "click .bet .btn" : "bet"
   },
@@ -388,4 +395,8 @@ var PlayerView = PersonView.extend({
     target.addClass("active")
     this.model.set("bet", target.data("value"))
   }
+  
+  // updateCredit: function(credit){
+  //   this.$(".total").text(credit)
+  // }
 })
