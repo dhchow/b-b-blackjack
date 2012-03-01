@@ -3,8 +3,6 @@ describe("BlackjackGame", function(){
   
   beforeEach(function() {
     game = new BlackjackGame()
-    // The listener normally resets the game if anyone busts
-    game.off("end:game")
   })
   
   it("has a new shuffled deck of cards", function(){
