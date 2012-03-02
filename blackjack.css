@@ -91,3 +91,7 @@ ul.cards li {
 .hide {
   display: none;
 }
+
+.hand {
+  top: -100px;
+}

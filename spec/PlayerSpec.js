@@ -31,6 +31,14 @@ describe("Player", function(){
     expect(player.get("bet")).toBe(0)
   })
   
+  it("wins 1.5x bet when hand is a blackjack", function() {
+    spyOn(player, "hasBlackjack").andReturn(true)
+    player.set("bet", 20)
+    player.win()
+    expect(player.get("credit")).toBe(530)
+    expect(player.get("bet")).toBe(0)
+  })
+  
   it("can't bet more than it has credit for", function(){
     var errorCallback = jasmine.createSpy()
     player.on("error", errorCallback)

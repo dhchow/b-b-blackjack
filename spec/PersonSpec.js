@@ -18,4 +18,38 @@ describe("Person", function() {
     person.addCards(card)
     expect(changeCallback).toHaveBeenCalled()
   })
+  
+  describe("#hasBlackjack", function() {
+    it("returns true when hand has 2 cards with a hand value of 21", function() {
+      person = new Person()
+      person.addCards([
+        new Card({suit: "spades", rank: "J"}),
+        new Card({suit: "diams", rank: "A"})
+      ])
+      expect(person.hasBlackjack()).toBe(true)
+    })
+    it("returns false if hand does not have 2 cards with a hand value of 21", function() {
+      person = new Person()
+      person.addCards([
+        new Card({suit: "spades", rank: "J"}),
+        new Card({suit: "diams", rank: "Q"})
+      ])
+      expect(person.hasBlackjack()).toBe(false)
+      
+      var person2 = new Person()
+      person2.addCards([
+        new Card({suit: "spades", rank: "J"}),
+        new Card({suit: "diams", rank: "10"}),
+        new Card({suit: "diams", rank: "A"})
+      ])
+      expect(person2.hasBlackjack()).toBe(false)
+      
+      var person3 = new Person()
+      person3.addCards([
+        new Card({suit: "spades", rank: "J"})
+      ])
+      expect(person3.hasBlackjack()).toBe(false)
+    })
+  })
+  
 })

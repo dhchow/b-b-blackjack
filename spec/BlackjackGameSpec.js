@@ -198,39 +198,6 @@ describe("BlackjackGame", function(){
     })
   })
   
-  describe("#hasBlackjack", function() {
-    it("returns true when person has 2 cards with a hand value of 21", function() {
-      var person = new Person()
-      person.addCards([
-        new Card({suit: "spades", rank: "J"}),
-        new Card({suit: "diams", rank: "A"})
-      ])
-      expect(game.hasBlackjack(person)).toBe(true)
-    })
-    it("returns false if person does not have 2 cards with a hand value of 21", function() {
-      var person = new Person()
-      person.addCards([
-        new Card({suit: "spades", rank: "J"}),
-        new Card({suit: "diams", rank: "Q"})
-      ])
-      expect(game.hasBlackjack(person)).toBe(false)
-      
-      var person2 = new Person()
-      person2.addCards([
-        new Card({suit: "spades", rank: "J"}),
-        new Card({suit: "diams", rank: "10"}),
-        new Card({suit: "diams", rank: "A"})
-      ])
-      expect(game.hasBlackjack(person2)).toBe(false)
-      
-      var person3 = new Person()
-      person3.addCards([
-        new Card({suit: "spades", rank: "J"})
-      ])
-      expect(game.hasBlackjack(person3)).toBe(false)
-    })
-  })
-  
   describe("#nextTurn", function() {
     it("sets turn to next person", function() {
       var person1 = new Person()
@@ -314,23 +281,6 @@ describe("BlackjackGame", function(){
     }) 
   })
   
-  describe("#getHandValue", function() {
-    it("returns hand value of person accounting for ace", function() {
-      var person = new Person()      
-      person.addCards([
-        new Card({suit: "spades", rank: 2}),
-        new Card({suit: "spades", rank: 3})
-      ])
-      expect(game.getHandValue(person)).toBe(5)
-      person.addCards(new Card({suit: "hearts", rank: "A"}))
-      expect(game.getHandValue(person)).toBe(16)
-      person.addCards(new Card({suit: "hearts", rank: 10}))
-      expect(game.getHandValue(person)).toBe(16)
-      person.addCards(new Card({suit: "spades", rank: "A"}))
-      expect(game.getHandValue(person)).toBe(17)
-    })
-  })
-  
   describe("#endGame", function() {
     it("marks game as not in progress", function() {
       game.set("inProgress", true)
@@ -350,6 +300,18 @@ describe("BlackjackGame", function(){
         game.player.set("bet", 50)
         game.endGame(game.player, "Got 21")
         expect(game.player.get("credit")).toBe(550)
+      })
+      
+      describe("when player has blackjack", function() {
+        it("increases player's credit by 1.5x bet value", function() {
+          game.player.set("bet", 50)
+          game.player.addCards([
+            new Card({suit: "spades", rank: "J"}),
+            new Card({suit: "spades", rank: "A"})
+          ])
+          game.endGame(game.player, "Got blackjack!")
+          expect(game.player.get("credit")).toBe(575)
+        })
       })
     })
     

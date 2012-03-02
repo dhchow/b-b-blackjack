@@ -60,26 +60,14 @@ var BlackjackGame = Backbone.Model.extend({
     }
   },
   dealerTurn: function(){
-    console.log("dealer turn! hand value", this.getHandValue(this.dealer))
-    if (this.getHandValue(this.dealer) < 17) {
+    console.log("dealer turn! hand value", this.dealer.get("hand").value())
+    if (this.dealer.get("hand").value() < 17) {
       console.log("dealer hits")
       this.hit(this.dealer)
     } else {
       console.log("dealer stands")
       this.stand(this.dealer)
     }
-  },
-  getHandValue: function(person){
-    var handValue = person.get("hand").value()
-    if (handValue > 21 && person.get("hand").hasRank("A")) {
-      var aces = person.get("hand").filter(function(card){ return card.get("rank") == "A"})
-      return handValue - (10 * aces.length);
-    } else {
-      return handValue
-    }
-  },
-  hasBlackjack: function(person){
-    return person.get("hand").length == 2 && this.getHandValue(person) == 21
   },
   _otherPerson: function(person){
     var other = _.without(this.people, person)
@@ -95,21 +83,21 @@ var BlackjackGame = Backbone.Model.extend({
         winner = null
         reason = "Push"
       } else {
-        winner = _.max(this.people, function(person){ return this.getHandValue(person)}, this)
+        winner = _.max(this.people, function(person){ return person.get("hand").value()}, this)
         reason = winner.get("name") + " won with a higher hand"
       }
       console.log("WINNER!", winner)
     } else {
       _.each(this.people, function(person){
-        console.log("\t" + person.get("name"), "hand value", this.getHandValue(person))
-        if (this.getHandValue(person) > 21) {
+        console.log("\t" + person.get("name"), "hand value", person.get("hand").value())
+        if (person.get("hand").value() > 21) {
           winner = person == this.dealer ? this.player : this.dealer
           reason = person.get("name") + " busted!"
-        } else if (this.getHandValue(person) == 21) {
+        } else if (person.get("hand").value() == 21) {
           var otherPerson = this._otherPerson(person)
-          if (this.getHandValue(otherPerson) == 21) {
-            if (this.hasBlackjack(person)) {
-              if (this.hasBlackjack(otherPerson)) {
+          if (otherPerson.get("hand").value() == 21) {
+            if (person.hasBlackjack()) {
+              if (otherPerson.hasBlackjack()) {
                 winner = null
                 reason = "Push"              
               } else {
@@ -119,7 +107,7 @@ var BlackjackGame = Backbone.Model.extend({
             }
           } else {
             winner = person
-            reason = person.get("name") + " got " + (this.hasBlackjack(person) ? "a blackjack!" : "21!")
+            reason = person.get("name") + " got " + (person.hasBlackjack() ? "a blackjack!" : "21!")
           }
         }
       }, this)
@@ -277,9 +265,14 @@ var CardView = Backbone.View.extend({
 var Hand = Backbone.Collection.extend({
   model: Card,
   value: function(){
-    return this.reduce(function(memo, card){
+    var value = this.reduce(function(memo, card){
       return memo + card.get("value")
     }, 0)
+    if (value > 21 && this.hasRank("A")) {
+      var aces = this.filter(function(card){ return card.get("rank") == "A"})
+      value -= (10 * aces.length)
+    }
+    return value
   },
   hasRank: function(rank){
     return this.any(function(card){ return card.get("rank") == rank })
@@ -305,6 +298,7 @@ var HandView = Backbone.View.extend({
   addOne: function(card){
     var elem = new CardView({model: card}).render().el
     this.$el.append(elem)
+    $(elem).animate({"top": "+=100px"}, "fast");
   },
   removeOne: function(card){
     this.$("#" + card.get("suit") + card.get("rank")).remove()
@@ -360,7 +354,7 @@ var Person = Backbone.Model.extend({
     this.set("hand", new Hand())
     this.get("hand")
       .on("add", this.onHandChange, this)
-      .on("remove", this.onHandChange, this)
+      .on("remove", this.onHandChange, this)      
   },
   addCards: function(cards){
     if (!_.isArray(cards)) cards = [cards]
@@ -370,6 +364,9 @@ var Person = Backbone.Model.extend({
         this.get("hand").add(card)
       }      
     }, this)
+  },
+  hasBlackjack: function(){
+    return this.get("hand").length == 2 && this.get("hand").value() == 21
   },
   onHandChange: function(){
     this.trigger("change:hand")
@@ -403,6 +400,10 @@ var Player = Person.extend({
   win: function(){
     var credit = this.get("credit")
     var bet = this.get("bet")
+    
+    if (this.hasBlackjack())
+      bet = bet * 1.5
+      
     this.set({credit: credit + bet, bet: 0})
   }
 })
