@@ -1,6 +1,6 @@
 .card {
-  width: 7.3em;
-  height: 8.6em;
+  width: 85px; /*7.3em;*/
+  height: 110px; /*8.6em;*/
   border: 1px solid #666;
   position: relative;
   background-color: white;
@@ -46,9 +46,9 @@ ul.cards li {
 
 .rank {
   position: absolute;
-  top: 43px; /*1em*/
-  left: 37px;
-  font-size: 32px;
+  top: 45px;
+  left: 35px;
+  font-size: 28px;
   font-weight: bold;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
@@ -57,13 +57,21 @@ ul.cards li {
 .suit {
   position: relative;
 	top: 45px;
-	right: 4px;
-  font-size: 120px;    
+	right: 3px;
+  font-size: 108px;    
   font-family: Monaco, Lucida Sans Unicode, sans-serif;
 }
 
-.total {
+.credit {
   font-size: 28px;
+}
+
+.credit.win {
+  background-color: #dff0d8;
+}
+
+.credit.lose {
+  background-color: #f2dede;
 }
 
 .bet .btn {
@@ -94,9 +102,10 @@ ul.cards li {
 
 .hand {
   top: -100px;
+  height: 100px;
 }
 
-.btn.disabled {
+/*.btn-group.disabled, */.btn.disabled {
   opacity: 0.45;
   background-color: #E6E6E6;
   color: gray;

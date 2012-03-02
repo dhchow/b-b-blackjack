@@ -229,7 +229,7 @@ var BlackjackView = Backbone.View.extend({
         .text(message)
         .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
         .addClass("alert-"+type)
-        .show()
+        .hide().fadeIn("slow")
     }
   }
 })
@@ -316,11 +316,15 @@ var HandView = Backbone.View.extend({
     var elem = new CardView({model: card}).render().el
     setTimeout(_.bind(function(){
       this.$el.append(elem)
-      $(elem).animate({top: "+=100px"}, "fast");   
-      HandView.addOneTimer--      
-      if (!HandView.addOneTimer)
-        this.trigger("end:animate")
-    }, this), 500 * HandView.addOneTimer++)
+      $(elem).animate({top: "+=100px"}, {
+        duration: "fast", 
+        complete: _.bind(function(){
+          HandView.animate--      
+          if (!HandView.animate)
+            this.trigger("end:animate")        
+        }, this)
+      });   
+    }, this), 500 * HandView.animate++)
   },
   removeOne: function(card){
     this.$("#" + card.get("suit") + card.get("rank")).remove()
@@ -329,7 +333,7 @@ var HandView = Backbone.View.extend({
     this.$el.empty()
   }
 })
-HandView.addOneTimer = 0
+HandView.animate = 0
 
 var Deck = Backbone.Collection.extend({
   model: Card,
@@ -419,6 +423,7 @@ var Player = Person.extend({
     var credit = this.get("credit")
     var bet = this.get("bet")
     this.set({credit: credit - bet, bet: 0})
+    this.trigger("changeStatus", "lose")
   },
   win: function(){
     var credit = this.get("credit")
@@ -428,6 +433,7 @@ var Player = Person.extend({
       bet = bet * 1.5
       
     this.set({credit: credit + bet, bet: 0})
+    this.trigger("changeStatus", "win")
   }
 })
 
@@ -440,6 +446,7 @@ var PlayerView = PersonView.extend({
     this.model
       .on("change:credit", this.updateCredit, this)
       .on("change:bet", this.updateBet, this)
+      .on("changeStatus", this.flashCredit, this)
   },
   
   events: {
@@ -451,10 +458,15 @@ var PlayerView = PersonView.extend({
     var target = $(ev.target)
     target.addClass("active")
     this.model.set("bet", target.data("value"))
+    this.$(".credit").removeClass("win lose")
   },
   
-  updateCredit: function(model, credit){
-    this.$(".total").text(credit)
+  flashCredit: function(status){
+    this.$(".credit").addClass(status).fadeTo("fast", 0.5).fadeTo("fast", 1)
+  },
+  
+  updateCredit: function(model, credit, oldCredit){
+    this.$(".credit .value").text(credit)
   },
   
   updateBet: function(model, bet){
