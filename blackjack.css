@@ -95,3 +95,9 @@ ul.cards li {
 .hand {
   top: -100px;
 }
+
+.btn.disabled {
+  opacity: 0.45;
+  background-color: #E6E6E6;
+  color: gray;
+}

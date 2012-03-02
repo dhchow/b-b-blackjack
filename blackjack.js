@@ -115,6 +115,7 @@ var BlackjackGame = Backbone.Model.extend({
     
     if (winner || reason) {
       this.endGame(winner, reason)
+      if (allStanding) this.trigger("allStanding")
     } else {
       console.log("nextTurn()")
       this.nextTurn()
@@ -152,6 +153,7 @@ var BlackjackGame = Backbone.Model.extend({
     this.people.push(this.player)
   }
 })
+
 var BlackjackView = Backbone.View.extend({
   model: BlackjackGame,
   initialize: function(){
@@ -162,11 +164,15 @@ var BlackjackView = Backbone.View.extend({
     this.model
       .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
+      .on("allStanding", this.notify, this)
       
     this.model.player.on("change:bet", this.onBet, this)
     
     this.model.deck.on("shuffled", this.onShuffle, this)
-      
+    
+    this.playerView.handView.on("end:animate", this.notify, this)
+    this.dealerView.handView.on("end:animate", this.notify, this)
+          
     this.$("#deal,#hit,#stand").addClass("disabled")
   },
   events: {
@@ -186,7 +192,7 @@ var BlackjackView = Backbone.View.extend({
     this.model.stand(this.model.player)
   },
   onBet: function(){
-    this.$("#deal,#hit,#stand").removeClass("disabled")
+    this.$("#deal").removeClass("disabled")
   },
   onProgressChange: function(){
     console.log("inprogress", this.model.get("inProgress"))
@@ -202,18 +208,29 @@ var BlackjackView = Backbone.View.extend({
   },
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "warning" : "danger"    
-    this.notify(type, info.reason)
+    this.queueNotification(type, info.reason)
     this.$("#deal,#hit,#stand").addClass("disabled")
   },
   onShuffle: function(){
-    this.notify("info", "Deck reshuffled")
+    this.queueNotification("info", "Deck reshuffled")
   },
+  queueNotification: function(type, message){
+    this.notification = {type: type, message: message}
+  },
+  // Uses notification queue if no args are passed in
   notify: function(type, message){
-    this.$(".alert")
-      .text(message)
-      .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
-      .addClass("alert-"+type)
-      .show()
+    if (!arguments.length && this.notification) {
+      type = this.notification.type
+      message = this.notification.message
+      this.notification = null
+    }
+    if ( type && message ) {
+      this.$(".alert")
+        .text(message)
+        .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
+        .addClass("alert-"+type)
+        .show()
+    }
   }
 })
 
@@ -297,8 +314,13 @@ var HandView = Backbone.View.extend({
   },
   addOne: function(card){
     var elem = new CardView({model: card}).render().el
-    this.$el.append(elem)
-    $(elem).animate({"top": "+=100px"}, "fast");
+    setTimeout(_.bind(function(){
+      this.$el.append(elem)
+      $(elem).animate({top: "+=100px"}, "fast");   
+      HandView.addOneTimer--      
+      if (!HandView.addOneTimer)
+        this.trigger("end:animate")
+    }, this), 500 * HandView.addOneTimer++)
   },
   removeOne: function(card){
     this.$("#" + card.get("suit") + card.get("rank")).remove()
@@ -307,6 +329,7 @@ var HandView = Backbone.View.extend({
     this.$el.empty()
   }
 })
+HandView.addOneTimer = 0
 
 var Deck = Backbone.Collection.extend({
   model: Card,
@@ -435,9 +458,6 @@ var PlayerView = PersonView.extend({
   },
   
   updateBet: function(model, bet){
-    console.log("update bet")
-    if (!bet) {
-      this.$(".bet .btn").removeClass("active")
-    }
+    if (!bet) this.$(".bet .btn").removeClass("active")
   }
 })
