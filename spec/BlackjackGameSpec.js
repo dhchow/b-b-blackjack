@@ -42,6 +42,9 @@ describe("BlackjackGame", function(){
     })
     
     it("marks game as in progress", function(){
+      spyOn(game, "reset")
+      spyOn(game, "refreshState")
+      
       expect(game.get("inProgress")).toBe(false)
       game.deal()
       expect(game.get("inProgress")).toBe(true)
@@ -57,6 +60,9 @@ describe("BlackjackGame", function(){
     })
     
     it("gives dealer one card from the deck", function(){
+      spyOn(game, "reset")
+      spyOn(game, "refreshState")
+      
       expect(game.dealer.get("hand").length).toBe(0)
       game.deal()
       expect(game.deck.draw).toHaveBeenCalled()
@@ -64,12 +70,7 @@ describe("BlackjackGame", function(){
       expect(game.deck.length).toBe(49)
       expect(game.dealer.get("hand").length).toBe(1)
     })
-    
-    it("assigns turn to player", function() {
-      game.deal()
-      expect(game.get("turn")).toBe(game.player)
-    })
-    
+        
     describe("when players still have cards in hand", function() {
       it("resets the game", function() {
         spyOn(game, "reset").andCallThrough()
