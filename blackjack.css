@@ -1,3 +1,5 @@
+
+
 .card {
   width: 85px; /*7.3em;*/
   height: 110px; /*8.6em;*/
@@ -106,4 +108,17 @@ ul.cards li {
   opacity: 0.45;
   background-color: #E6E6E6;
   color: gray;
+}
+
+#table {
+  padding-bottom: 35px;
+  padding-top: 40px;
+  border-radius: 20px;
+  background-color: #ededed;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(purty_wood.png),;
+  background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
 }
