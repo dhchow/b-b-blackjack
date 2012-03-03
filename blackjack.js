@@ -199,11 +199,11 @@ var BlackjackView = Backbone.View.extend({
     console.log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
-      this.$(".bet .btn").addClass("disabled")
+      this.$(".bet").addClass("disabled")
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$("#hit,#stand").addClass("disabled")
-      this.$(".bet .btn").removeClass("disabled")
+      this.$(".bet").removeClass("disabled")
     }
   },
   onGameEnd: function(info){
@@ -454,7 +454,8 @@ var PlayerView = PersonView.extend({
   initialize: function(){
     PersonView.prototype.initialize.call(this)
     this.model
-      .on("change:bet", this.updateBet, this)
+      .on("change:bet", this.enableBet, this)
+      .on("change:credit", this.updateAffordability, this)
   },
   
   events: {
@@ -468,7 +469,13 @@ var PlayerView = PersonView.extend({
     this.model.set("bet", target.data("value"))
   },
     
-  updateBet: function(model, bet){
+  enableBet: function(model, bet){
     if (!bet) this.$(".bet .btn").removeClass("active")
+  },
+  
+  updateAffordability: function(model, credit){
+    $("#bet1, #bet5, #bet25, #bet100").each(function(){
+      credit < $(this).data("value") ? $(this).addClass("disabled") : $(this).removeClass("disabled")
+    })
   }
 })

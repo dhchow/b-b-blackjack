@@ -1,3 +1,24 @@
+/* Table bg inspired by http://culttt.com/2012/02/08/css3-gradients-and-textures/ */
+.table {
+  margin-top: 18px;
+  padding-bottom: 25px;
+  padding-top: 40px;
+  border-radius: 20px;
+  background-color: #ededed;
+  display: table;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(purty_wood.png),;
+  background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+}
+
+.cards {
+  width: 480px;
+  margin: 0 auto;
+}
+
 .card {
   width: 75px;
   height: 100px;
@@ -6,6 +27,7 @@
   background-color: white;
   box-shadow: .2em .2em .5em #333;
   font-family: Monaco, Lucida Sans Unicode, sans-serif;
+  margin-left: 3px;
   -moz-box-shadow: .2em .2em .5em #333;
   -webkit-box-shadow: .2em .2em .5em #333;
   -webkit-border-radius: .3em;
@@ -81,26 +103,18 @@
   color: gray;
 }
 
+.bet.disabled .btn {
+  cursor: default;
+  background-image: none;
+  background-color: #E6E6E6;
+  color: gray;
+  opacity: 0.45;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
 .controls {
   text-align: center;
-}
-
-/* Inspired by http://culttt.com/2012/02/08/css3-gradients-and-textures/ */
-.table {
-  margin-top: 18px;
-  padding-bottom: 25px;
-  padding-top: 40px;
-  border-radius: 20px;
-  background-color: #ededed;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(purty_wood.png),;
-  background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-}
-
-.cards {
-  position: relative;
-  margin-left: 20%;
 }

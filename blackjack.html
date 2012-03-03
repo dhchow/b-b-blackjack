@@ -28,10 +28,10 @@
       <div class="player controls">
         <div class="btn-toolbar">
           <div class="bet btn-group">
-            <a class="btn btn-large" href="#" data-value="1">$1</a>
-            <a class="btn btn-large" href="#" data-value="5">$5</a>
-            <a class="btn btn-large" href="#" data-value="25">$25</a>
-            <a class="btn btn-large" href="#" data-value="100">$100</a>
+            <a id="bet1" class="btn btn-large" href="#" data-value="1">$1</a>
+            <a id="bet5" class="btn btn-large" href="#" data-value="5">$5</a>
+            <a id="bet25" class="btn btn-large" href="#" data-value="25">$25</a>
+            <a id="bet100" class="btn btn-large" href="#" data-value="100">$100</a>
           </div>
           <div class="btn-group">
             <a id="hit" class="btn btn-success btn-large span1">Hit</a>
@@ -56,8 +56,8 @@
     
     <script>
       $(function(){
-        var blackjackGame = new BlackjackGame()
-        var blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
+        window.blackjackGame = new BlackjackGame()
+        window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
       })    
     </script>
   </body>
