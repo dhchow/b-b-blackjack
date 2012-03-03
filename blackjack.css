@@ -83,7 +83,10 @@ ul.cards li {
 
 .alert {
   text-align: center;
-  font-size: 18px;
+  font-size: 28px;
+  padding-bottom: 18px;
+  padding-top: 15px;
+  border-radius: 15px;
 }
 
 .alert.none {
@@ -92,7 +95,7 @@ ul.cards li {
 }
 
 .alert-container {
-  height: 50px;
+  height: 55px;
 }
 
 .hide {
@@ -109,7 +112,10 @@ ul.cards li {
   background-color: #E6E6E6;
   color: gray;
 }
-
+.controls {
+  text-align: center;
+}
+/* Inspired by http://culttt.com/2012/02/08/css3-gradients-and-textures/ */
 #table {
   padding-bottom: 35px;
   padding-top: 40px;
