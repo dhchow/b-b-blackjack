@@ -64,6 +64,7 @@ ul.cards li {
 
 .credit {
   font-size: 28px;
+  margin-left: 0;
 }
 
 .credit.win {
@@ -88,10 +89,6 @@ ul.cards li {
   border: none;
 }
 
-/*.actions {
-  text-align: center;
-}*/
-
 .alert-container {
   height: 50px;
 }
@@ -105,7 +102,7 @@ ul.cards li {
   height: 100px;
 }
 
-/*.btn-group.disabled, */.btn.disabled {
+.btn.disabled {
   opacity: 0.45;
   background-color: #E6E6E6;
   color: gray;

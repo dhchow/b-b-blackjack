@@ -198,12 +198,12 @@ var BlackjackView = Backbone.View.extend({
     console.log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
-      this.$(".bet").addClass("disabled")
+      this.$(".bet .btn").addClass("disabled")
       this.$(".alert").text("").addClass("none")
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$("#hit,#stand").addClass("disabled")
-      this.$(".bet").addClass("disabled")
+      this.$(".bet .btn").removeClass("disabled")
     }
   },
   onGameEnd: function(info){
