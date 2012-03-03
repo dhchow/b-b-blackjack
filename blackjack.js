@@ -161,21 +161,24 @@ var BlackjackView = Backbone.View.extend({
       .on("end:game", this.onGameEnd, this)
       .on("allStanding", this.notify, this)
       
-    this.model.player.on("change:bet", this.onBet, this)
-    
     this.model.deck.on("shuffled", this.onShuffle, this)
     
     this.playerView.handView.on("end:animate", this.notify, this)
     this.dealerView.handView.on("end:animate", this.notify, this)
           
     this.$("#deal,#hit,#stand").addClass("disabled")
+    
+    this.displayCredit()
   },
+  alert: this.$(".alert"),
   events: {
-    "click #deal:not(.disabled)"   : "deal",
-    "click #hit:not(.disabled)"    : "hit",
-    "click #stand:not(.disabled)"  : "stand"
+    "click #deal:not(.disabled)"      : "deal",
+    "click #hit:not(.disabled)"       : "hit",
+    "click #stand:not(.disabled)"     : "stand",
+    "click .bet .btn:not(.disabled)"  : "deal",
+    "mouseover .bet"                  : "displayCredit"
   },
-  deal: function(ev){
+  deal: function(){
     this.$("#hit,#stand").removeClass("disabled")
     this.model.deal()
   },
@@ -187,14 +190,16 @@ var BlackjackView = Backbone.View.extend({
     this.model.stand(this.model.player)
   },
   onBet: function(){
-    this.$("#deal").removeClass("disabled")
+    this.deal()
+  },
+  displayCredit: function(){
+    this.notify("none", "You have $" + this.model.player.get("credit"))
   },
   onProgressChange: function(){
     console.log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet .btn").addClass("disabled")
-      this.$(".alert").text("").addClass("none")
     } else {
       this.$("#deal").removeClass("disabled").addClass("btn-primary")
       this.$("#hit,#stand").addClass("disabled")
@@ -202,7 +207,7 @@ var BlackjackView = Backbone.View.extend({
     }
   },
   onGameEnd: function(info){
-    var type = info.winner == this.model.player ? "success" : info.winner == null ? "warning" : "danger"    
+    var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
     this.queueNotification(type, info.reason)
     this.$("#deal,#hit,#stand").addClass("disabled")
   },
@@ -220,11 +225,21 @@ var BlackjackView = Backbone.View.extend({
       this.notification = null
     }
     if ( type && message ) {
-      this.$(".alert")
+      var fade = !this.alert.hasClass("alert-"+type)
+      
+      this.alert
         .text(message)
         .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
         .addClass("alert-"+type)
-        .hide().fadeIn("slow")
+        .hide()
+        
+      fade ? this.alert.fadeIn("fast") : this.alert.show()
+      
+      if (type != "none") {
+        setTimeout(_.bind(function(){ 
+          this.displayCredit()
+        }, this), 4e3)
+      }
     }
   }
 })
@@ -439,9 +454,7 @@ var PlayerView = PersonView.extend({
   initialize: function(){
     PersonView.prototype.initialize.call(this)
     this.model
-      .on("change:credit", this.updateCredit, this)
       .on("change:bet", this.updateBet, this)
-      .on("changeStatus", this.flashCredit, this)
   },
   
   events: {
@@ -453,17 +466,8 @@ var PlayerView = PersonView.extend({
     var target = $(ev.target)
     target.addClass("active")
     this.model.set("bet", target.data("value"))
-    this.$(".credit").removeClass("win lose")
   },
-  
-  flashCredit: function(status){
-    this.$(".credit").addClass(status).fadeTo("fast", 0.5).fadeTo("fast", 1)
-  },
-  
-  updateCredit: function(model, credit, oldCredit){
-    this.$(".credit .value").text(credit)
-  },
-  
+    
   updateBet: function(model, bet){
     if (!bet) this.$(".bet .btn").removeClass("active")
   }
