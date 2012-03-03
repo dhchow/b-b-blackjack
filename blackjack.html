@@ -56,5 +56,12 @@
     <script src="./lib/underscore-min.js"></script>
     <script src="./lib/backbone-min.js"></script>
     <script src="./blackjack.js"></script>
+    
+    <script>
+      $(function(){
+        var blackjackGame = new BlackjackGame()
+        var blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
+      })    
+    </script>
   </body>
 </html>

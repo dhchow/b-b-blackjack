@@ -1,8 +1,3 @@
-$(function(){
-  window.blackjackGame = new BlackjackGame()
-  window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
-})
-
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
