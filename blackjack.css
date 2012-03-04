@@ -50,7 +50,6 @@ body {
   -webkit-box-shadow: .2em .2em .5em #333;
   -webkit-border-radius: .3em;
 }
-
 .card.back {
   text-indent: -4000px;
   background-color: #CCC;
@@ -58,6 +57,32 @@ body {
   background-image: url(data:image/gif;base64,R0lGODlhJAAkAJEAAOjFsezdztOKbL5QKCH5BAAAAAAALAAAAAAkACQAAAL/HC4RAqm/mmLHyHmAbczB11Ea8ombJKSgKo6Z17pXFznmS1JptiX0z3vVhpEKDoUIkoa0olGIUeZUk1RI6Yn2mh/FDAt6frOrRRTqXPpsVLYugzxaVy+YcBdnoWPZOT0E4eckQtZFZBjWoHixQFWl6Nhol6R2p1Okt5TGaEWZA6fjiMdhZgPHeWrTWGVq+jTZg1HYyAEWKLYzmyiGKoUimilz+YYryyTlg5RcDJSAbNx0Q7lMcbIGEyzTK8zVdfVaImzs/QV+prYqWWW2ObkoOApM/Em/rUlIm7fijs8a2EEKEaZ3AsMUgneEU6RcpJbZ27aGHkAO2Ors8xQH1IR0Bn5YnOtVAAA7);
 /*  background-image: -moz-repeating-linear-gradient(34% 6% 135deg,#0F1E59, #75A1BF, #3E3E63 50%);
   background-image: -webkit-gradient(radial, center center, 20, center center, 80, from(#3C3), color-stop(0.4, #363), to(#030));*/
+}
+.card.diams .suit:after {
+    content: "\2666";
+    right: .4em;
+}
+.card.hearts .suit:after {
+    content: "\2665";
+    right: .35em;
+}
+.card.spades .suit:after {
+    content: "\2660";
+    right: .35em;
+}
+.card.clubs .suit:after {
+    content: "\2663";
+    right: .3em;
+}
+.card .suit:after {
+    font-family: Georgia, serif;
+    position: absolute;
+    font-size: 3.5em;
+    top: -2px;
+    word-spacing: normal;
+    letter-spacing: normal;
+    line-height: 1;
+    left: 10px;
 }
 
 .row {

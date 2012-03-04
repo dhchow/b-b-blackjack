@@ -460,7 +460,7 @@ var Player = Person.extend({
     var bet = this.get("bet")
     
     if (this.hasBlackjack())
-      bet = bet * 1.5
+      bet = Math.round(bet * 1.5)
       
     this.set({credit: credit + bet, bet: 0})
     this.trigger("changeStatus", "win")
