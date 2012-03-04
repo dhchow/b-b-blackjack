@@ -30,6 +30,8 @@ var BlackjackGame = Backbone.Model.extend({
     this.refreshState()
   },
   dealerTurn: function(){
+    if (!this.get("inProgress")) return;
+    
     console.log("dealer turn! hand value", this.dealer.get("hand").value())
     this.dealer.showHand()
     if (this.dealer.get("hand").value() < 17) {
@@ -101,7 +103,9 @@ var BlackjackGame = Backbone.Model.extend({
   endGame: function(winner, reason){
     this.set("inProgress", false)
     winner == this.player ? this.player.win() : this.player.lose()
-    
+    this.people.each(function(person){
+      person.showHand()
+    })
     this.trigger("end:game", {
       winner: winner,
       reason: reason

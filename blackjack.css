@@ -12,12 +12,6 @@ body {
   background-color: #ededed;
   display: table;
   background-image: url(pool_table.png);
-  /*background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(pool_table.png),;
-    background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
-    background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
-    background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
-    background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
-    background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);*/
   text-align: center;
 }
 
@@ -62,8 +56,8 @@ body {
   background-color: #CCC;
   background-repeat: repeat;
   background-image: url(data:image/gif;base64,R0lGODlhJAAkAJEAAOjFsezdztOKbL5QKCH5BAAAAAAALAAAAAAkACQAAAL/HC4RAqm/mmLHyHmAbczB11Ea8ombJKSgKo6Z17pXFznmS1JptiX0z3vVhpEKDoUIkoa0olGIUeZUk1RI6Yn2mh/FDAt6frOrRRTqXPpsVLYugzxaVy+YcBdnoWPZOT0E4eckQtZFZBjWoHixQFWl6Nhol6R2p1Okt5TGaEWZA6fjiMdhZgPHeWrTWGVq+jTZg1HYyAEWKLYzmyiGKoUimilz+YYryyTlg5RcDJSAbNx0Q7lMcbIGEyzTK8zVdfVaImzs/QV+prYqWWW2ObkoOApM/Em/rUlIm7fijs8a2EEKEaZ3AsMUgneEU6RcpJbZ27aGHkAO2Ors8xQH1IR0Bn5YnOtVAAA7);
-  background-image: -moz-repeating-linear-gradient(34% 6% 135deg,#0F1E59, #75A1BF, #3E3E63 50%);
-  background-image: -webkit-gradient(radial, center center, 20, center center, 80, from(#3C3), color-stop(0.4, #363), to(#030));
+/*  background-image: -moz-repeating-linear-gradient(34% 6% 135deg,#0F1E59, #75A1BF, #3E3E63 50%);
+  background-image: -webkit-gradient(radial, center center, 20, center center, 80, from(#3C3), color-stop(0.4, #363), to(#030));*/
 }
 
 .row {
@@ -125,7 +119,6 @@ body {
 }
 
 .btn.disabled {
-  opacity: 0.45;
   background-color: #E6E6E6;
   color: gray;
 }
@@ -135,7 +128,6 @@ body {
   background-image: none;
   background-color: #E6E6E6;
   color: gray;
-  opacity: 0.45;
   filter: alpha(opacity=65);
   -webkit-box-shadow: none;
   -moz-box-shadow: none;

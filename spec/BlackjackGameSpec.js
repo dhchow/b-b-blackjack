@@ -196,41 +196,42 @@ describe("BlackjackGame", function(){
   })
   
   describe("#dealerTurn", function() {
-    describe("when dealer's hand value is < 17", function() {
-      it("dealer hits", function() {
-        var cards = [
-          game.deck.find(function(card){ return card.get("rank") == 6}),
-          game.deck.find(function(card){ return card.get("rank") == 10})
-        ]
-        game.dealer.addCards(cards)
-        game.deck.remove(cards)
-        spyOn(game.deck, "draw").andCallThrough()
-        spyOn(game.dealer, "addCards").andCallThrough()
-        game.dealerTurn()
-        expect(game.dealer.addCards).toHaveBeenCalled()
-        expect(game.deck.draw).toHaveBeenCalled()
-        expect(game.dealer.get("hand").length).toBe(3)
+    describe("when game is in progress", function() {
+      beforeEach(function() {
+        game.set("inProgress", true)
+      })
+      
+      describe("when dealer's hand value is < 17", function() {
+        it("dealer hits", function() {
+          var cards = [
+            game.deck.find(function(card){ return card.get("rank") == 6}),
+            game.deck.find(function(card){ return card.get("rank") == 10})
+          ]
+          game.dealer.addCards(cards)
+          game.deck.remove(cards)
+          spyOn(game.deck, "draw").andCallThrough()
+          spyOn(game.dealer, "addCards").andCallThrough()
+          game.dealerTurn()
+          expect(game.dealer.addCards).toHaveBeenCalled()
+          expect(game.deck.draw).toHaveBeenCalled()
+          expect(game.dealer.get("hand").length).toBe(3)
+        })
+      })
+    
+      describe("when dealer's hand value is >= 17", function() {
+        it("dealer stands", function() {
+          game.dealer.addCards([new Card({suit: "hearts", rank: 7}), new Card({suit: "spades", rank: 10})])
+          spyOn(game.deck, "draw").andCallThrough()
+          spyOn(game.dealer, "addCards").andCallThrough()
+          game.dealerTurn()
+          expect(game.dealer.addCards).not.toHaveBeenCalled()
+          expect(game.deck.draw).not.toHaveBeenCalled()
+          expect(game.dealer.get("hand").length).toBe(2)
+          expect(game.dealer.get("standing")).toBe(true)
+        })
       })
     })
-    
-    describe("when dealer's hand value is >= 17", function() {
-      it("dealer stands", function() {
-        game.dealer.addCards([new Card({suit: "hearts", rank: 7}), new Card({suit: "spades", rank: 10})])
-        spyOn(game.deck, "draw").andCallThrough()
-        spyOn(game.dealer, "addCards").andCallThrough()
-        game.dealerTurn()
-        expect(game.dealer.addCards).not.toHaveBeenCalled()
-        expect(game.deck.draw).not.toHaveBeenCalled()
-        expect(game.dealer.get("hand").length).toBe(2)
-        expect(game.dealer.get("standing")).toBe(true)
-      })
-    })  
-    
-    // it("ends dealer's turn", function() {
-    //   spyOn(game, "trigger")
-    //   game.dealerTurn()
-    //   expect(game.trigger).toHaveBeenCalledWith("end:turn")
-    // }) 
+
   })
   
   describe("#hit", function(){
