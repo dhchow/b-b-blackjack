@@ -1,17 +1,20 @@
 describe("Person", function() {
   var person
-  it("can receive cards in hand", function(){
+  beforeEach(function(){
     person = new Person()
-    var card = new Card({suit: "hearts", rank: 7})
-    person.addCards(card)
-    expect(person.get("hand").length).toBe(1)
+  })
+  describe("#addCards", function() {
+    it("adds cards to hand", function() {
+      var card = new Card({suit: "hearts", rank: 7})
+      person.addCards(card)
+      expect(person.get("hand").length).toBe(1)
     
-    person.addCards([new Card({suit: "hearts", rank: 5}), new Card({suit: "hearts", rank: 3})])
-    expect(person.get("hand").length).toBe(3)
+      person.addCards([new Card({suit: "hearts", rank: 5}), new Card({suit: "hearts", rank: 3})])
+      expect(person.get("hand").length).toBe(3)   
+    })
   })
   
   it("triggers change event when cards are added to hand", function(){
-    person = new Person()
     var changeCallback = jasmine.createSpy()
     person.on("change:hand", changeCallback)
     var card = new Card({suit: "hearts", rank: 3})
@@ -21,7 +24,6 @@ describe("Person", function() {
   
   describe("#hasBlackjack", function() {
     it("returns true when hand has 2 cards with a hand value of 21", function() {
-      person = new Person()
       person.addCards([
         new Card({suit: "spades", rank: "J"}),
         new Card({suit: "diams", rank: "A"})
@@ -29,7 +31,6 @@ describe("Person", function() {
       expect(person.hasBlackjack()).toBe(true)
     })
     it("returns false if hand does not have 2 cards with a hand value of 21", function() {
-      person = new Person()
       person.addCards([
         new Card({suit: "spades", rank: "J"}),
         new Card({suit: "diams", rank: "Q"})
@@ -52,4 +53,11 @@ describe("Person", function() {
     })
   })
   
+  describe("#showHand", function() {
+    it("sets all cards in hand to face up", function() {
+      person.addCards([new Card({suit: "hearts", rank: 5}), new Card({suit: "hearts", rank: 3, faceUp: false})])
+      person.showHand()
+      expect(person.get("hand").last().get("faceUp")).toBe(true)
+    })
+  })
 })

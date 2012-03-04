@@ -9,53 +9,29 @@ var BlackjackGame = Backbone.Model.extend({
     this._initDealer()
     this._initPlayer()
         
-    this.on("change:turn", this.onChangeTurn, this)
+    this.player.on("change:standing", this.dealerTurn, this)
   },
   deal: function(){
-    console.log("DEEEEEAL")
+    console.log("deal")
     this.reset()
     this.player.addCards(this.deck.draw(2))
-    this.dealer.addCards(this.deck.draw())
+    var dealers = this.deck.draw(2)
+    dealers[1].flip()
+    this.dealer.addCards(dealers)
     this.set("inProgress", true)
-    this.set("turn", this.dealer, {silent: true})
     this.refreshState()
   },
   hit: function(person){
     person.addCards(this.deck.draw())
-    this.endTurn()
-  },
-  stand: function(person){
-    person.set("standing", true, {silent: true})
-    this.endTurn()
-  },
-  endTurn: function(){
-    this.trigger("end:turn")
     this.refreshState()
   },
-  nextTurn: function(){
-    if (!this.get("inProgress")) return;
-    
-    var currentPersonIndex = this.people.indexOf(this.get("turn"))
-    // This ensures that Backbone will trigger the change event every time
-    this.unset("turn")
-    if (currentPersonIndex == this.people.length-1) {
-      this.set("turn", this.people[0])
-    } else {
-      this.set("turn", this.people[currentPersonIndex+1])
-    }
-  },
-  onChangeTurn: function(){
-    if (this.get("turn")) {
-      console.log("->", this.get("turn").get("name"), this.get("turn").get("standing"))
-      if (this.get("turn").get("standing")) {
-        this.endTurn()
-      } else if (this.get("turn") == this.dealer){
-        this.dealerTurn()
-      }
-    }
+  stand: function(person){
+    person.set("standing", true)
+    this.refreshState()
   },
   dealerTurn: function(){
     console.log("dealer turn! hand value", this.dealer.get("hand").value())
+    this.dealer.showHand()
     if (this.dealer.get("hand").value() < 17) {
       console.log("dealer hits")
       this.hit(this.dealer)
@@ -111,10 +87,10 @@ var BlackjackGame = Backbone.Model.extend({
     if (winner || reason) {
       this.endGame(winner, reason)
       if (allStanding) this.trigger("allStanding")
-    } else {
-      console.log("nextTurn()")
-      this.nextTurn()
-    }
+    } 
+
+    if (this.player.get("standing") && !this.dealer.get("standing"))
+      this.dealerTurn()
   },
   reset: function(){
     _.each(this.people, function(person){
@@ -265,6 +241,9 @@ var BlackjackView = Backbone.View.extend({
 })
 
 var Card = Backbone.Model.extend({
+  defaults: {
+    faceUp: true
+  },
   initialize: function(){
     this.setId()
     this.setValue()
@@ -279,6 +258,9 @@ var Card = Backbone.Model.extend({
     else if (rank == "J" || rank == "Q" || rank == "K") value = 10
     
     this.set("value", value)
+  },
+  flip: function(){
+    this.set("faceUp", !this.get("faceUp"))
   }
 })
 Card.SUITS = ["hearts", "spades", "clubs", "diams"]
@@ -288,10 +270,18 @@ var CardView = Backbone.View.extend({
   model: Card,
   tagName: 'div',
   attributes: function(){
+    var back = this.model.get("faceUp") ? "" : "back"
+    var classes = ["card", "span2", this.model.get("suit"), back]
     return { 
-      "class"   : "card span2 " + this.model.get("suit"),
+      "class"   : classes.join(" "),
       "id" : this.model.get("suit") + this.model.get("rank"),  
     } 
+  },
+  initialize: function(){
+    this.model.on("change:faceUp", this.flip, this)
+  },
+  flip: function(model, faceUp){
+    this.$el.toggleClass("back")
   },
   render: function() {
     this.$el.html(ich.card(this.templateData()))
@@ -424,6 +414,11 @@ var Person = Backbone.Model.extend({
   },
   hasBlackjack: function(){
     return this.get("hand").length == 2 && this.get("hand").value() == 21
+  },
+  showHand: function(){
+    this.get("hand").each(function(card){
+      card.set("faceUp", true)
+    })
   },
   onHandChange: function(){
     this.trigger("change:hand")

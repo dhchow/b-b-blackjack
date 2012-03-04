@@ -2,9 +2,9 @@ describe("BlackjackGame", function(){
   var game
   
   beforeEach(function() {
-    game = new BlackjackGame()
     spyOn(localStorage, "getItem")
     spyOn(localStorage, "setItem")
+    game = new BlackjackGame()
   })
   
   it("has a new shuffled deck of cards", function(){
@@ -28,14 +28,7 @@ describe("BlackjackGame", function(){
   it("no one is assigned a turn", function() {
     expect(game.get("turn")).not.toBeDefined()
   })
-      
-  it("calls #nextTurn when person ends their turn", function(){
-    spyOn(BlackjackGame.prototype, "nextTurn")
-    var diffGame = new BlackjackGame
-    diffGame.endTurn()
-    expect(diffGame.nextTurn).toHaveBeenCalled()
-  })
-  
+    
   describe("#deal", function(){
     beforeEach(function() {
       spyOn(game.deck, "draw").andCallThrough()
@@ -61,7 +54,7 @@ describe("BlackjackGame", function(){
       expect(game.player.get("hand").length).toBe(2)
     })
     
-    it("gives dealer one card from the deck", function(){
+    it("gives dealer two cards from the deck, last one face down", function(){
       spyOn(game, "reset")
       spyOn(game, "refreshState")
       
@@ -69,8 +62,9 @@ describe("BlackjackGame", function(){
       game.deal()
       expect(game.deck.draw).toHaveBeenCalled()
       expect(game.dealer.addCards).toHaveBeenCalled()
-      expect(game.deck.length).toBe(49)
-      expect(game.dealer.get("hand").length).toBe(1)
+      expect(game.deck.length).toBe(48)
+      expect(game.dealer.get("hand").length).toBe(2)
+      expect(game.dealer.get("hand").last().get("faceUp")).toBe(false)
     })
         
     describe("when players still have cards in hand", function() {
@@ -201,31 +195,6 @@ describe("BlackjackGame", function(){
     })
   })
   
-  describe("#nextTurn", function() {
-    it("sets turn to next person", function() {
-      var person1 = new Person()
-      var person2 = new Person()
-      game.set("inProgress", true)
-      game.people = [person1, person2]
-      game.set("turn", person1)
-      game.nextTurn()
-      expect(game.get("turn")).toBe(person2)
-      game.nextTurn()
-      expect(game.get("turn")).toBe(person1)
-    })    
-    
-    describe("when next turn is dealer's", function() {
-      it("calls #dealerTurn", function() {
-        spyOn(game, "dealerTurn")
-        game.set("inProgress", true)
-        game.set("turn", game.player)
-        game.nextTurn()
-        expect(game.get("turn")).toBe(game.dealer)
-        expect(game.dealerTurn).toHaveBeenCalled()
-      })
-    })
-  })
-  
   describe("#dealerTurn", function() {
     describe("when dealer's hand value is < 17", function() {
       it("dealer hits", function() {
@@ -257,11 +226,11 @@ describe("BlackjackGame", function(){
       })
     })  
     
-    it("ends dealer's turn", function() {
-      spyOn(game, "trigger")
-      game.dealerTurn()
-      expect(game.trigger).toHaveBeenCalledWith("end:turn")
-    }) 
+    // it("ends dealer's turn", function() {
+    //   spyOn(game, "trigger")
+    //   game.dealerTurn()
+    //   expect(game.trigger).toHaveBeenCalledWith("end:turn")
+    // }) 
   })
   
   describe("#hit", function(){
@@ -276,12 +245,18 @@ describe("BlackjackGame", function(){
       expect(person.get("hand").length).toBe(1)
     })
     
-    it("ends person's turn", function() {
-      spyOn(game, "trigger")
+    it("refreshes state", function() {
+      spyOn(game, "refreshState")
       var person = new Person()
       game.hit(person)
-      expect(game.trigger).toHaveBeenCalledWith("end:turn")
-    }) 
+      expect(game.refreshState).toHaveBeenCalled()
+    })
+    // it("ends person's turn", function() {
+    //       spyOn(game, "trigger")
+    //       var person = new Person()
+    //       game.hit(person)
+    //       expect(game.trigger).toHaveBeenCalledWith("end:turn")
+    //     }) 
   })
   
   describe("#endGame", function() {
@@ -352,51 +327,16 @@ describe("BlackjackGame", function(){
   })
   
   describe("#stand", function() {
-    it("ends person's turn", function() {
-      spyOn(game, "trigger")
-      var person = new Person()
-      game.stand(person)
-      expect(game.trigger).toHaveBeenCalledWith("end:turn")
-    })
     it("marks person as standing", function() {
       var person = new Person()
       game.stand(person)
       expect(person.get("standing")).toBe(true)
     })
-  })
-  
-  describe("#onChangeTurn", function() {
-    describe("when it's the dealer's turn", function() {
-      it("calls #dealerTurn", function() {
-        spyOn(game, "dealerTurn")
-        game.set("turn", game.dealer)
-        game.onChangeTurn()
-        expect(game.dealerTurn).toHaveBeenCalled()
-      })
+    it("refreshes state", function() {
+      var person = new Person()
+      spyOn(game, "refreshState")
+      game.stand(person)
+      expect(game.refreshState).toHaveBeenCalled()
     })
-    
-    describe("when it's a person's turn", function() {
-      var person
-      beforeEach(function() {
-        person = new Person()
-        game.set("turn", person)
-      })
-      describe("when person is standing", function() {
-        it("ends the person's turn", function() {
-          spyOn(game, "trigger")
-          person.set("standing", true)
-          game.onChangeTurn()
-          expect(game.trigger).toHaveBeenCalledWith("end:turn")
-        })
-      })
-      describe("when person is not standing", function() {
-        it("does not end the person's turn", function() {
-          spyOn(game, "trigger")
-          game.onChangeTurn()
-          expect(game.trigger).not.toHaveBeenCalledWith("end:turn")
-        })
-      })
-    })
-    
-  })
+  })  
 })

@@ -22,4 +22,20 @@ describe("Card", function(){
     card = new Card({suit: "hearts", rank: "K"})
     expect(card.get("value")).toBe(10)  
   })
+  
+  it("is face up by default", function(){
+    card = new Card({suit: "hearts", rank: 2})
+    expect(card.get("faceUp"), true)
+  })
+  
+  describe("#flip", function() {
+    it("toggles card's face up value", function() {
+      card = new Card({suit: "hearts", rank: 2})
+      expect(card.get("faceUp"), true)
+      card.flip()
+      expect(card.get("faceUp"), false)
+      card.flip()
+      expect(card.get("faceUp"), true)
+    })
+  })
 })
