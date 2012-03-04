@@ -174,7 +174,7 @@ var BlackjackView = Backbone.View.extend({
     "click #double:not(.disabled)"      : "doubleDown",
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
-    "click .bet:not(.disabled) .btn:not(.disabled)"  : "deal",
+    "click .bet:not(.disabled) .chip:not(.disabled)"  : "deal",
     "mouseover .bet"                  : "displayCredit"
   },
   deal: function(){
@@ -214,7 +214,7 @@ var BlackjackView = Backbone.View.extend({
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
     this.queueNotification(type, info.reason)
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
-    this.$(".bet .btn").removeClass("active")
+    this.$(".bet .chip").removeClass("active")
   },
   onShuffle: function(){
     this.queueNotification("info", "Deck reshuffled")
@@ -501,18 +501,18 @@ var PlayerView = PersonView.extend({
   },
   
   events: {
-    "click .bet .btn" : "bet"
+    "click .bet .chip" : "bet"
   },
     
   bet: function(ev){
-    this.$(".bet .btn").removeClass("active")
+    this.$(".bet .chip").removeClass("active")
     var target = $(ev.target)
     target.addClass("active")
     this.model.set("bet", target.data("value"))    
   },
       
   resetBet: function(model, bet){
-    if (!bet) this.$(".bet .btn").removeClass("active")
+    if (!bet) this.$(".bet .chip").removeClass("active")
   },
   
   resetDouble: function(model, doubling){
@@ -520,7 +520,7 @@ var PlayerView = PersonView.extend({
   },
   
   updateAffordability: function(model, credit){
-    $(".bet .btn").each(function(){
+    $(".bet .chip").each(function(){
       credit < $(this).data("value") ? $(this).addClass("disabled") : $(this).removeClass("disabled")
     })
   }
