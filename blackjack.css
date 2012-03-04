@@ -12,6 +12,21 @@
   background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
   background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
   background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  text-align: center;
+}
+
+.label-top, .label-bottom {
+  font-size: 16px;
+}
+
+.table .label-top {
+  margin-top: -30px;
+  margin-bottom: 10px;
+}
+
+.table .label-bottom {
+  margin-bottom: -13px;
+  margin-top: -10px;
 }
 
 .cards {
@@ -60,7 +75,7 @@
 .suit {
   position: relative;
   top: 24px;
-  right: -5px;
+  right: 26px;
   font-size: 17px; 
   font-family: Monaco, Lucida Sans Unicode, sans-serif;
 }
@@ -84,10 +99,6 @@
 
 .alert-container {
   height: 55px;
-}
-
-.hide {
-  display: none;
 }
 
 .hand {
@@ -114,5 +125,9 @@
 }
 
 .controls {
+  text-align: center;
+}
+
+#paypal {
   text-align: center;
 }

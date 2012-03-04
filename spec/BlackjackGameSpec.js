@@ -3,6 +3,8 @@ describe("BlackjackGame", function(){
   
   beforeEach(function() {
     game = new BlackjackGame()
+    spyOn(localStorage, "getItem")
+    spyOn(localStorage, "setItem")
   })
   
   it("has a new shuffled deck of cards", function(){

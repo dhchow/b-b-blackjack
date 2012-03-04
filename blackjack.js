@@ -130,7 +130,18 @@ var BlackjackGame = Backbone.Model.extend({
     this.trigger("end:game", {
       winner: winner,
       reason: reason
-    })  
+    })
+    this.saveCredit()
+  },
+  saveCredit: function(value){
+    if (localStorage) {
+      localStorage.setItem("blackjackCredit", value || this.player.get("credit"))
+    }
+  },
+  loadCredit: function(){
+    if (localStorage && localStorage.getItem("blackjackCredit")) {
+      this.player.set("credit", parseInt(localStorage.getItem("blackjackCredit")))
+    }
   },
   _initDeck: function(){
     this.deck = new Deck()
@@ -146,6 +157,7 @@ var BlackjackGame = Backbone.Model.extend({
     this.player = new Player({name: "You"})
     this.set("player", this.player, {silent: true})
     this.people.push(this.player)
+    this.loadCredit()
   }
 })
 
@@ -163,6 +175,8 @@ var BlackjackView = Backbone.View.extend({
       
     this.model.deck.on("shuffled", this.onShuffle, this)
     
+    this.model.player.on("empty:credit", this.showPaypal, this)
+    
     this.playerView.handView.on("end:animate", this.notify, this)
     this.dealerView.handView.on("end:animate", this.notify, this)
           
@@ -175,7 +189,7 @@ var BlackjackView = Backbone.View.extend({
     "click #deal:not(.disabled)"      : "deal",
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
-    "click .bet .btn:not(.disabled)"  : "deal",
+    "click .bet:not(.disabled) .btn:not(.disabled)"  : "deal",
     "mouseover .bet"                  : "displayCredit"
   },
   deal: function(){
@@ -189,11 +203,8 @@ var BlackjackView = Backbone.View.extend({
     $("#hit").addClass("disabled")
     this.model.stand(this.model.player)
   },
-  onBet: function(){
-    this.deal()
-  },
   displayCredit: function(){
-    this.notify("none", "You have $" + this.model.player.get("credit"))
+    this.notify("none", "You have " + this.model.player.get("credit") + " chips")
   },
   onProgressChange: function(){
     console.log("inprogress", this.model.get("inProgress"))
@@ -238,9 +249,18 @@ var BlackjackView = Backbone.View.extend({
       if (type != "none") {
         setTimeout(_.bind(function(){ 
           this.displayCredit()
-        }, this), 4e3)
+        }, this), 3e3)
       }
     }
+  },
+  showPaypal: function(){
+    $("#paypal form").submit(_.bind(function(){
+      var selected = $("#paypal select").val().replace(/\D/g, "")
+      this.model.saveCredit(this.model.player.get("credit") + parseInt(selected))
+    }, this))
+    setTimeout(function(){
+      $("#paypal").modal()
+    }, 2e3)
   }
 })
 
@@ -428,6 +448,8 @@ var Player = Person.extend({
   validate: function(attrs){
     if (attrs.bet > attrs.credit)
       return "Not enough credit :("
+    if (!attrs.credit)
+      this.trigger("empty:credit")
   },
   lose: function(){
     var credit = this.get("credit")
