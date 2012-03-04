@@ -1,3 +1,4 @@
+debug = true
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
@@ -9,7 +10,7 @@ var BlackjackGame = Backbone.Model.extend({
     this._initDealer()
     this._initPlayer()
         
-    this.player.on("change:standing", this.dealerTurn, this)
+    this.player.on("change:standing", this.dealerTurn, this)    
   },
   deal: function(){
     log("deal")
@@ -168,6 +169,7 @@ var BlackjackView = Backbone.View.extend({
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     
     this.displayCredit()
+    // this.displayWelcome()
   },
   alert: this.$(".alert"),
   events: {
@@ -178,6 +180,7 @@ var BlackjackView = Backbone.View.extend({
     "mouseover .bet"                  : "displayCredit"
   },
   deal: function(){
+    this.hideWelcome()
     this.$("#hit,#stand,#double").removeClass("disabled")
     this.model.deal()
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
@@ -199,6 +202,13 @@ var BlackjackView = Backbone.View.extend({
   displayCredit: function(){
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
   },
+  // displayWelcome: function(){
+  //   // if (localStorage && localStorage)
+  //   $('#welcomeModal').modal('show')
+  // },
+  // hideWelcome: function(){
+  //   $('#welcomeModal').modal('hide')
+  // },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
@@ -527,6 +537,6 @@ var PlayerView = PersonView.extend({
 })
 
 var log = function(){
-  if (typeof console != "undefined") 
+  if (typeof debug != "undefined" && typeof console != "undefined") 
     console.log.apply(console, arguments)
 }

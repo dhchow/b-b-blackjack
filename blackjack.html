@@ -3,7 +3,6 @@
     <meta charset="utf-8">
 	  <title>Blackjack</title>
     <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-<!--    <link href="./bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet"/>-->
     <link href="./blackjack.css" rel="stylesheet"/>
   </head>
   
@@ -21,6 +20,15 @@
           </div>
           <div class="label-bottom">You</div>
         </div>
+        
+        <!-- <div class="modal hide" id="welcomeModal" data-backdrop="false">
+                 <div class="modal-header">
+                   <h3>Welcome!</h3>
+                 </div>
+                 <div class="modal-body">
+                   <p>Place a bet below to begin.</p>
+                 </div>
+               </div> -->
       </div>
       
       <div class="alert-container">
@@ -28,26 +36,13 @@
       </div> 
       
       <div class="player controls">
-        <div class="btn-toolbar">
-          <!-- <div>
-            <a class="chip"><span>1</span></a>
-            <a class="chip"><span>5</span></a>
-            <a class="chip"><span>25</span></a>
-            <a class="chip"><span>100</span></a>
-          </div> -->
-          <div class="bet btn-group" title="Choose bet">            
+        <div class="bet btn-toolbar">
+          <div class="btn-group">            
             <a class="chip span1" href="#" data-value="1">1</a>
             <a class="chip span1" href="#" data-value="5">5</a>
             <a class="chip span1" href="#" data-value="25">25</a>
             <a class="chip span1" href="#" data-value="100">100</a>
           </div>
-          
-          <!--           <div class="bet btn-group" title="Choose bet">            
-                      <a class="btn btn-large" href="#" data-value="1">Bet 1</a>
-                      <a class="btn btn-large" href="#" data-value="5">5</a>
-                      <a class="btn btn-large" href="#" data-value="25">25</a>
-                      <a class="btn btn-large" href="#" data-value="100">100</a>
-                    </div> -->
           <div class="btn-group rect">
             <a id="double" class="btn btn-large" href="#">Double</a>
           </div>
@@ -59,10 +54,10 @@
           </div>
         </div>
       </div>
-      
+  
     </div>
-
-    <div id="paypal" class="hide modal fade">
+    
+    <div id="paypal" class="modal hide fade">
       <div class="modal-header">
         <a class="close" data-dismiss="modal">×</a>
         <h3>Out of chips :( Get more?</h3>
@@ -98,12 +93,14 @@
     <script src="./lib/backbone-min.js"></script>
     <script src="./lib/bootstrap-modal.js"></script>
     <script src="./lib/bootstrap-transition.js"></script>
+    <script src="./lib/bootstrap-tooltip.js"></script>
+    <script src="./lib/bootstrap-popover.js"></script>
     <script src="./blackjack.js"></script>
     
     <script>
       $(function(){
-        window.blackjackGame = new BlackjackGame()
-        window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
+        var blackjackGame = new BlackjackGame()
+        var blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
       })    
     </script>
   </body>
