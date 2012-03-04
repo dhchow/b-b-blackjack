@@ -1,8 +1,3 @@
-var log = function(){
-  if (typeof console != "undefined") 
-    console.log.apply(console, arguments)
-}
-
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
@@ -33,6 +28,11 @@ var BlackjackGame = Backbone.Model.extend({
   stand: function(person){
     person.set("standing", true)
     this.refreshState()
+  },
+  doubleDown: function(player){
+    player.doubleDown()
+    player.addCards(this.deck.draw())
+    this.stand(player)
   },
   dealerTurn: function(){
     if (!this.get("inProgress")) return;
@@ -102,12 +102,13 @@ var BlackjackGame = Backbone.Model.extend({
       this.deck.discard(person.get("hand").models)
       person.get("hand").reset()
       person.set("standing", false, {silent: true})
+      person.set("doubling", false)
     }, this)
     this.set("inProgress", false, {silent: true})
   },
   endGame: function(winner, reason){
     this.set("inProgress", false)
-    winner == this.player ? this.player.win() : this.player.lose()
+    if (winner) winner == this.player ? this.player.win() : this.player.lose()
     this.people.each(function(person){
       person.showHand()
     })
@@ -164,28 +165,36 @@ var BlackjackView = Backbone.View.extend({
     this.playerView.handView.on("end:animate", this.notify, this)
     this.dealerView.handView.on("end:animate", this.notify, this)
           
-    this.$("#deal,#hit,#stand").addClass("disabled")
+    this.$("#deal,#hit,#stand,#double").addClass("disabled")
     
     this.displayCredit()
   },
   alert: this.$(".alert"),
   events: {
-    "click #deal:not(.disabled)"      : "deal",
+    "click #double:not(.disabled)"      : "doubleDown",
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
     "click .bet:not(.disabled) .btn:not(.disabled)"  : "deal",
     "mouseover .bet"                  : "displayCredit"
   },
   deal: function(){
-    this.$("#hit,#stand").removeClass("disabled")
+    this.$("#hit,#stand,#double").removeClass("disabled")
     this.model.deal()
+    if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
+      this.$("#double").addClass("disabled")
   },
-  hit: function(ev){
+  hit: function(){
+    this.$("#double").addClass("disabled")
     this.model.hit(this.model.player)
   },
-  stand: function(ev){
-    $("#hit").addClass("disabled")
+  stand: function(){
+    this.$("#hit").addClass("disabled")
+    this.$("#double").addClass("disabled")
     this.model.stand(this.model.player)
+  },
+  doubleDown: function() {
+    this.$("#double").addClass("active disabled")
+    this.model.doubleDown(this.model.player)
   },
   displayCredit: function(){
     this.notify("none", "You have " + this.model.player.get("credit") + " chips")
@@ -204,7 +213,8 @@ var BlackjackView = Backbone.View.extend({
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
     this.queueNotification(type, info.reason)
-    this.$("#deal,#hit,#stand").addClass("disabled")
+    this.$("#deal,#hit,#stand,#double").addClass("disabled")
+    this.$(".bet .btn").removeClass("active")
   },
   onShuffle: function(){
     this.queueNotification("info", "Deck reshuffled")
@@ -454,6 +464,10 @@ var Player = Person.extend({
     if (!attrs.credit)
       this.trigger("empty:credit")
   },
+  doubleDown: function() {
+    this.set("bet", this.get("bet") * 2)
+    this.set("doubling", true)
+  },
   lose: function(){
     var credit = this.get("credit")
     var bet = this.get("bet")
@@ -479,8 +493,11 @@ var PlayerView = PersonView.extend({
   initialize: function(){
     PersonView.prototype.initialize.call(this)
     this.model
-      .on("change:bet", this.enableBet, this)
+      .on("change:bet", this.resetBet, this)
       .on("change:credit", this.updateAffordability, this)
+      .on("change:doubling", this.resetDouble, this)
+      
+    this.updateAffordability(this.model, this.model.get("credit"))
   },
   
   events: {
@@ -491,16 +508,25 @@ var PlayerView = PersonView.extend({
     this.$(".bet .btn").removeClass("active")
     var target = $(ev.target)
     target.addClass("active")
-    this.model.set("bet", target.data("value"))
+    this.model.set("bet", target.data("value"))    
   },
-    
-  enableBet: function(model, bet){
+      
+  resetBet: function(model, bet){
     if (!bet) this.$(".bet .btn").removeClass("active")
   },
   
+  resetDouble: function(model, doubling){
+    if (!doubling) this.$("#double").removeClass("active")
+  },
+  
   updateAffordability: function(model, credit){
-    $("#bet1, #bet5, #bet25, #bet100").each(function(){
+    $(".bet .btn").each(function(){
       credit < $(this).data("value") ? $(this).addClass("disabled") : $(this).removeClass("disabled")
     })
   }
 })
+
+var log = function(){
+  if (typeof console != "undefined") 
+    console.log.apply(console, arguments)
+}

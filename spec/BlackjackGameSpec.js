@@ -251,13 +251,31 @@ describe("BlackjackGame", function(){
       var person = new Person()
       game.hit(person)
       expect(game.refreshState).toHaveBeenCalled()
+    })    
+  })
+  
+  describe("#doubleDown", function() {
+    it("doubles the player's bet", function() {
+      var player = new Player({bet: 20})
+      game.doubleDown(player)
+      expect(player.get("bet")).toBe(40)
     })
-    // it("ends person's turn", function() {
-    //       spyOn(game, "trigger")
-    //       var person = new Person()
-    //       game.hit(person)
-    //       expect(game.trigger).toHaveBeenCalledWith("end:turn")
-    //     }) 
+    it("adds one card to player's hand", function() {
+      var player = new Player()
+      game.doubleDown(player)
+      expect(player.get("hand").length).toBe(1)
+    })
+    it("marks player as standing", function(){
+      var player = new Player()
+      game.doubleDown(player)
+      expect(player.get("standing")).toBe(true)
+    })
+    it("refreshes game state", function() {
+      spyOn(game, "refreshState")
+      var player = new Player()
+      game.doubleDown(player)
+      expect(game.refreshState).toHaveBeenCalled()
+    })
   })
   
   describe("#endGame", function() {
@@ -301,6 +319,14 @@ describe("BlackjackGame", function(){
         expect(game.player.get("credit")).toBe(450)
       })
     })
+    
+    describe("when there is no winner", function() {
+      it("does not change player's credit", function() {
+        game.player.set("bet", 50)
+        game.endGame(null, "Push")
+        expect(game.player.get("credit")).toBe(500)
+      })
+    })
   })
   
   describe("#reset", function() {
@@ -318,6 +344,12 @@ describe("BlackjackGame", function(){
       game.player.set("standing", true)
       game.reset()
       expect(game.player.get("standing")).toBe(false)
+    })
+    
+    it("resets people's doubling status", function(){
+      game.player.set("doubling", true)
+      game.reset()
+      expect(game.player.get("doubling")).toBe(false)
     })
     
     it("marks game as not in progress", function() {

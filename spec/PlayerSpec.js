@@ -45,4 +45,11 @@ describe("Player", function(){
     player.set("bet", 501)
     expect(errorCallback).toHaveBeenCalled()
   })  
+  
+  it("can double down", function(){
+    player.set("bet", 10)
+    player.doubleDown()
+    expect(player.get("bet")).toBe(20)
+    expect(player.get("doubling")).toBe(true)
+  })
 })
