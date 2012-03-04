@@ -197,7 +197,7 @@ var BlackjackView = Backbone.View.extend({
     this.model.doubleDown(this.model.player)
   },
   displayCredit: function(){
-    this.notify("none", "You have " + this.model.player.get("credit") + " chips")
+    this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
   },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
@@ -233,7 +233,7 @@ var BlackjackView = Backbone.View.extend({
       var fade = !this.alert.hasClass("alert-"+type)
       
       this.alert
-        .text(message)
+        .html(message)
         .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
         .addClass("alert-"+type)
         .hide()
