@@ -3,7 +3,7 @@ var BlackjackGame = Backbone.Model.extend({
     inProgress: false
   },
   initialize: function(){
-    this.people = []
+    this.people = new Backbone.Collection()
     
     this._initDeck()
     this._initDealer()
@@ -41,12 +41,11 @@ var BlackjackGame = Backbone.Model.extend({
     }
   },
   _otherPerson: function(person){
-    var other = _.without(this.people, person)
-    return other.length ? other[0] : null
+    return this.people.without(person)[0]
   },
   refreshState: function(){
     var winner, reason
-    var allStanding = _.all(this.people, function(person){ return person.get("standing") })
+    var allStanding = this.people.all(function(person){ return person.get("standing") })
     console.log("\tall standing?", allStanding)
     
     if ( allStanding ) {
@@ -54,15 +53,15 @@ var BlackjackGame = Backbone.Model.extend({
         winner = null
         reason = "Push"
       } else {
-        winner = _.max(this.people, function(person){ return person.get("hand").value()}, this)
+        winner = this.people.max(function(person){ return person.get("hand").value()})
         reason = winner.get("name") + " won with a higher hand"
       }
       console.log("WINNER!", winner)
     } else {
-      _.each(this.people, function(person){
+      this.people.each(function(person){
         console.log("\t" + person.get("name"), "hand value", person.get("hand").value())
         if (person.get("hand").value() > 21) {
-          winner = person == this.dealer ? this.player : this.dealer
+          winner = this._otherPerson(person)
           reason = person.get("name") + " busted!"
         } else if (person.get("hand").value() == 21) {
           var otherPerson = this._otherPerson(person)
@@ -92,7 +91,7 @@ var BlackjackGame = Backbone.Model.extend({
     }
   },
   reset: function(){
-    _.each(this.people, function(person){
+    this.people.each(function(person){
       this.deck.discard(person.get("hand").models)
       person.get("hand").reset()
       person.set("standing", false, {silent: true})
@@ -102,6 +101,7 @@ var BlackjackGame = Backbone.Model.extend({
   endGame: function(winner, reason){
     this.set("inProgress", false)
     winner == this.player ? this.player.win() : this.player.lose()
+    
     this.trigger("end:game", {
       winner: winner,
       reason: reason
@@ -126,12 +126,12 @@ var BlackjackGame = Backbone.Model.extend({
   _initDealer: function() {
     this.dealer = new Person({name: "Dealer"})
     this.set("dealer", this.dealer, {silent: true})
-    this.people.push(this.dealer)
+    this.people.add(this.dealer)
   },
   _initPlayer: function(){
     this.player = new Player({name: "You"})
     this.set("player", this.player, {silent: true})
-    this.people.push(this.player)
+    this.people.add(this.player)
     this.loadCredit()
   }
 })

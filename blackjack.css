@@ -1,3 +1,8 @@
+/* Background images from http://subtlepatterns.com/ */
+body {
+  background-image: url(purty_wood.png);
+}
+
 /* Table bg inspired by http://culttt.com/2012/02/08/css3-gradients-and-textures/ */
 .table {
   margin-top: 18px;
@@ -6,17 +11,20 @@
   border-radius: 20px;
   background-color: #ededed;
   display: table;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(purty_wood.png),;
-  background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
-  background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(purty_wood.png);
+  background-image: url(pool_table.png);
+  /*background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(237,237,237, 0.5)), color-stop(100%, rgba(153,153,153, 0.5))), url(pool_table.png),;
+    background-image: -webkit-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
+    background-image: -moz-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
+    background-image: -ms-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
+    background-image: -o-linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);
+    background-image: linear-gradient(top, rgba(237,237,237, 0.5), rgba(153,153,153, 0.5)), url(pool_table.png);*/
   text-align: center;
 }
 
 .label-top, .label-bottom {
   font-size: 16px;
+  color: antiqueWhite;
+  font-weight: bold;
 }
 
 .table .label-top {
