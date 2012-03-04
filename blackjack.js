@@ -1,3 +1,8 @@
+var log = function(){
+  if (typeof console != "undefined") 
+    console.log.apply(console, arguments)
+}
+
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
@@ -12,7 +17,7 @@ var BlackjackGame = Backbone.Model.extend({
     this.player.on("change:standing", this.dealerTurn, this)
   },
   deal: function(){
-    console.log("deal")
+    log("deal")
     this.reset()
     this.player.addCards(this.deck.draw(2))
     var dealers = this.deck.draw(2)
@@ -32,13 +37,13 @@ var BlackjackGame = Backbone.Model.extend({
   dealerTurn: function(){
     if (!this.get("inProgress")) return;
     
-    console.log("dealer turn! hand value", this.dealer.get("hand").value())
+    log("dealer turn! hand value", this.dealer.get("hand").value())
     this.dealer.showHand()
     if (this.dealer.get("hand").value() < 17) {
-      console.log("dealer hits")
+      log("dealer hits")
       this.hit(this.dealer)
     } else {
-      console.log("dealer stands")
+      log("dealer stands")
       this.stand(this.dealer)
     }
   },
@@ -48,7 +53,7 @@ var BlackjackGame = Backbone.Model.extend({
   refreshState: function(){
     var winner, reason
     var allStanding = this.people.all(function(person){ return person.get("standing") })
-    console.log("\tall standing?", allStanding)
+    log("\tall standing?", allStanding)
     
     if ( allStanding ) {
       if (this.player.get("hand").value() == this.dealer.get("hand").value()) {
@@ -58,10 +63,10 @@ var BlackjackGame = Backbone.Model.extend({
         winner = this.people.max(function(person){ return person.get("hand").value()})
         reason = winner.get("name") + " won with a higher hand"
       }
-      console.log("WINNER!", winner)
+      log("WINNER!", winner)
     } else {
       this.people.each(function(person){
-        console.log("\t" + person.get("name"), "hand value", person.get("hand").value())
+        log("\t" + person.get("name"), "hand value", person.get("hand").value())
         if (person.get("hand").value() > 21) {
           winner = this._otherPerson(person)
           reason = person.get("name") + " busted!"
@@ -186,7 +191,7 @@ var BlackjackView = Backbone.View.extend({
     this.notify("none", "You have " + this.model.player.get("credit") + " chips")
   },
   onProgressChange: function(){
-    console.log("inprogress", this.model.get("inProgress"))
+    log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet").addClass("disabled")
