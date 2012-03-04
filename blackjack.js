@@ -87,10 +87,9 @@ var BlackjackGame = Backbone.Model.extend({
     if (winner || reason) {
       this.endGame(winner, reason)
       if (allStanding) this.trigger("allStanding")
-    } 
-
-    if (this.player.get("standing") && !this.dealer.get("standing"))
+    } else if (this.player.get("standing")) {
       this.dealerTurn()
+    }
   },
   reset: function(){
     _.each(this.people, function(person){
@@ -225,7 +224,7 @@ var BlackjackView = Backbone.View.extend({
       if (type != "none") {
         setTimeout(_.bind(function(){ 
           this.displayCredit()
-        }, this), 3e3)
+        }, this), 4e3)
       }
     }
   },
