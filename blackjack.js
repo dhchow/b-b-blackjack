@@ -97,20 +97,20 @@ var BlackjackGame = Backbone.Model.extend({
     } else if (!reason && this.player.get("standing")) {
       this.dealerTurn()
     } else if (!winner && reason == "Push") {
-      this.endGame(winner, reason)
-      // setTimeout(_.bind(function(){
-      //   this.deal()
-      // }, this), 2e3)
+      this.trigger("push")
+      setTimeout(_.bind(function(){
+        this.deal()
+      }, this), 2e3)
     }
   },
   reset: function(){
+    this.set("inProgress", false)
     this.people.each(function(person){
       this.deck.discard(person.get("hand").models)
       person.get("hand").reset()
       person.set("standing", false, {silent: true})
       person.set("doubling", false)
     }, this)
-    this.set("inProgress", false, {silent: true})
   },
   endGame: function(winner, reason){
     if (!this.get("inProgress")) return;
@@ -163,7 +163,7 @@ var BlackjackView = Backbone.View.extend({
     this.model
       .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
-      // .on("allStanding", this.notify, this)
+      .on("push", this.onPush, this)
       
     this.model.deck.on("shuffled", this.onShuffle, this)
   
@@ -190,11 +190,14 @@ var BlackjackView = Backbone.View.extend({
   },
   deal: function(){
     this.clearNotification()
+    this.resetControls()
+    this.model.deal()
+  },
+  resetControls: function(){
     this.flipControls()
     this.$("#hit,#stand,#double").removeClass("disabled")
-    this.model.deal()
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
-      this.$("#double").addClass("disabled")
+      this.$("#double").addClass("disabled")    
   },
   hit: function(){
     this.$("#double").addClass("disabled")
@@ -232,6 +235,10 @@ var BlackjackView = Backbone.View.extend({
   },
   onShuffle: function(){
     this.notify("info", "Deck reshuffled")
+  },
+  onPush: function(){
+    this.notify("info", "Push", true)
+    this.resetControls()
   },
   clearNotification: function(){
     this.alert.hide()
