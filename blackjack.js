@@ -98,9 +98,9 @@ var BlackjackGame = Backbone.Model.extend({
       this.dealerTurn()
     } else if (!winner && reason == "Push") {
       this.endGame(winner, reason)
-      setTimeout(_.bind(function(){
-        this.deal()
-      }, this), 2e3)
+      // setTimeout(_.bind(function(){
+      //   this.deal()
+      // }, this), 2e3)
     }
   },
   reset: function(){
@@ -210,7 +210,7 @@ var BlackjackView = Backbone.View.extend({
     this.model.doubleDown(this.model.player)
   },
   displayCredit: function(){
-    this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
+    this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips", true)
   },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
@@ -234,19 +234,19 @@ var BlackjackView = Backbone.View.extend({
     this.notify("info", "Deck reshuffled")
   },
   clearNotification: function(){
-    this.alert.html("").addClass("none")
+    this.alert.hide()
   },
-  // Uses notification queue if no args are passed in
-  notify: function(type, message){
-    var fade = !this.alert.hasClass("alert-" + type)
-      
-    this.alert
-      .html(message)
-      .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
-      .addClass("alert-"+ type)
-      .hide()
+  notify: function(type, message, immediate){
+    // Allow animations to finish
+    setTimeout(_.bind(function(){
+      this.alert
+        .html(message)
+        .removeClass("alert-success alert-error alert-info alert-danger alert-warning none")
+        .addClass("alert-"+ type)
+        .hide()
         
-    fade ? this.alert.fadeIn("fast") : this.alert.show()
+      this.alert.fadeIn("fast")      
+    }, this), immediate ? 0 : 500)
   },
   showPaypal: function(){
     $("#paypal form").submit(_.bind(function(){
@@ -533,13 +533,13 @@ var PlayerView = PersonView.extend({
     } else if (data.status == "win"){
       var newChips = this.generateChips(data.amount)
       $(".chip-container .dealer").append(newChips)
-      newChips.animate({top: "+=250px"}, {
+      newChips.animate({top: "+=160px", right: "-=30px"}, {
         duration: 1e3, 
         complete: _.bind(function(){
           setTimeout(_.bind(function() {
             $(".stack-o-chips:not(.total)").fadeOut(1e3, function(){ $(this).remove() })
             this.trigger("end:animateBet")
-          }, this), 2e3)
+          }, this), 1e3)
         }, this)
       })
     }
