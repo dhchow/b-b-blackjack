@@ -170,6 +170,12 @@ body {
   right: 149px;
   top: 63px;
 }
+.player-total .stack-o-chips {
+  position: relative;
+  float: left;
+  top: 274px;
+  left: 40px;
+}
 .player .stack-o-chips {
   position: relative;
   float: right;
