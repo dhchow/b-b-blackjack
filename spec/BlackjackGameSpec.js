@@ -279,8 +279,11 @@ describe("BlackjackGame", function(){
   })
   
   describe("#endGame", function() {
-    it("marks game as not in progress", function() {
+    beforeEach(function() {
       game.set("inProgress", true)
+    })
+    
+    it("marks game as not in progress", function() {
       game.endGame()
       expect(game.get("inProgress")).toBe(false)
     })  

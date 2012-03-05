@@ -47,7 +47,7 @@
             <a id="double" class="btn btn-large" href="#">Double</a>
           </div>
         </div>        
-        <div class="btn-toolbar">
+        <div class="btn-toolbar hide">
           <div class="btn-group rect">
             <a id="hit" class="btn btn-success btn-large span1">Hit</a>
             <a id="stand" class="btn btn-danger btn-large span1">Stand</a>
@@ -100,7 +100,7 @@
     <script>
       $(function(){
         var blackjackGame = new BlackjackGame()
-        var blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
+        window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
       })    
     </script>
   </body>

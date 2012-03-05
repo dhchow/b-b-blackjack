@@ -108,6 +108,9 @@ var BlackjackGame = Backbone.Model.extend({
     this.set("inProgress", false, {silent: true})
   },
   endGame: function(winner, reason){
+    if (!this.get("inProgress")) return;
+    
+    log("END GAME!")
     this.set("inProgress", false)
     if (winner) winner == this.player ? this.player.win() : this.player.lose()
     this.people.each(function(person){
@@ -179,7 +182,14 @@ var BlackjackView = Backbone.View.extend({
     "click .bet:not(.disabled) .chip:not(.disabled)"  : "deal",
     "mouseover .bet"                  : "displayCredit"
   },
+  flipControls: function(){
+    var front = this.$(".controls .btn-toolbar:visible")
+    var back = this.$(".controls .btn-toolbar:not(:visible)")
+    front.hide()
+    back.removeClass("hide").show()
+  },
   deal: function(){
+    this.flipControls()
     // this.hideWelcome()
     this.$("#hit,#stand,#double").removeClass("disabled")
     this.model.deal()
@@ -225,6 +235,7 @@ var BlackjackView = Backbone.View.extend({
     this.queueNotification(type, info.reason)
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     this.$(".bet .chip").removeClass("active")
+    this.flipControls()
   },
   onShuffle: function(){
     this.queueNotification("info", "Deck reshuffled")
