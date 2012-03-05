@@ -180,7 +180,7 @@ var BlackjackView = Backbone.View.extend({
     "mouseover .bet"                  : "displayCredit"
   },
   deal: function(){
-    this.hideWelcome()
+    // this.hideWelcome()
     this.$("#hit,#stand,#double").removeClass("disabled")
     this.model.deal()
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
