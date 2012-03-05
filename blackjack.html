@@ -7,10 +7,29 @@
   </head>
   
   <body>    
+
+    <div class="chip-container">
+      <div class="dealer">
+        <!-- <div class="stack-o-chips">
+          <div class="chip chip1" href="#"></div>
+          <div class="chip chip2" href="#"></div>
+          <div class="chip chip3" href="#"><span>100</span></div>
+        </div> -->
+      </div>
+      <div class="player">
+        <!-- <div class="stack-o-chips">
+          <div class="chip chip1" href="#"></div>
+          <div class="chip chip2" href="#"></div>
+          <div class="chip chip3" href="#"><span>80</span></div>
+        </div> -->        
+      </div>
+    </div>
+    
     <div class="container-fluid">           
       <div class="table">
         <div class="cards">
           <div class="label-top">Dealer</div>
+         
           <div class="dealer">
             <div class="hand row"></div> 
           </div>
@@ -34,19 +53,19 @@
             <a class="chip span1" href="#" data-value="25">25</a>
             <a class="chip span1" href="#" data-value="100">100</a>
           </div>
+        </div>        
+        <div class="btn-toolbar hide">
           <div class="btn-group rect">
             <a id="double" class="btn btn-large" href="#">Double</a>
           </div>
-        </div>        
-        <div class="btn-toolbar hide">
           <div class="btn-group rect">
             <a id="hit" class="btn btn-success btn-large span1">Hit</a>
             <a id="stand" class="btn btn-danger btn-large span1">Stand</a>
           </div>
         </div>
       </div>
-  
     </div>
+    
     
     <div id="paypal" class="modal hide fade">
       <div class="modal-header">
@@ -76,6 +95,14 @@
     <script id="card" type="text/html">
       <span class="suit">{{suitView}}</span>
       <span class="rank">{{rankView}}</span>
+    </script>
+    
+    <script id="chips" type="text/html">
+      <div class="stack-o-chips">
+        <div class="chip chip1" href="#"></div>
+        <div class="chip chip2" href="#"></div>
+        <div class="chip chip3" href="#"><span>{{value}}</span></div>
+      </div>
     </script>
       
     <script src="./lib/jquery-1.7.min.js"></script>
