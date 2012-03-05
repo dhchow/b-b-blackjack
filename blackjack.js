@@ -166,14 +166,9 @@ var BlackjackView = Backbone.View.extend({
       // .on("allStanding", this.notify, this)
       
     this.model.deck.on("shuffled", this.onShuffle, this)
-    
+  
     this.model.player.on("empty:credit", this.showPaypal, this)
-    
-    // this.playerView.handView.on("end:animate", this.queueNotification, this)
-    // this.dealerView.handView.on("end:animate", this.queueNotification, this)
-    
-    // this.playerView.on("end:animateBet", this.displayCredit, this)
-          
+              
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     
     this.notifications = []
@@ -186,7 +181,6 @@ var BlackjackView = Backbone.View.extend({
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
     "click .bet:not(.disabled) .chip:not(.disabled)"  : "deal"
-    // "mouseover .bet"                  : "displayCredit"
   },
   flipControls: function(){
     var front = this.$(".controls .btn-toolbar:visible")
@@ -216,13 +210,8 @@ var BlackjackView = Backbone.View.extend({
     this.model.doubleDown(this.model.player)
   },
   displayCredit: function(){
-    this.queueNotification("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
+    this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
   },
-  // displayCreditTimeout: function(){
-  //   setTimeout(_.bind(function(){ 
-  //     this.displayCredit()
-  //   }, this), 1500)
-  // },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
@@ -236,24 +225,13 @@ var BlackjackView = Backbone.View.extend({
   },
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
-    this.queueNotification(type, info.reason)
+    this.notify(type, info.reason)
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     this.$(".bet .chip").removeClass("active")
     this.flipControls()
   },
   onShuffle: function(){
-    this.queueNotification("info", "Deck reshuffled")
-  },
-  queueNotification: function(type, message){
-    this.notify(type, message)
-    // this.notifications.push({type: type, message: message})
-    //     if (this.alert.text()){
-    //       setTimeout(_.bind(function(){
-    //         this.notify(this.notifications.shift())
-    //       }, this), 2e3 * this.notifications.length)
-    //     } else {
-    //       this.notify(this.notifications.shift())
-    //     }
+    this.notify("info", "Deck reshuffled")
   },
   clearNotification: function(){
     this.alert.html("").addClass("none")
@@ -548,7 +526,8 @@ var PlayerView = PersonView.extend({
   
   animateBet: function(data){
     if (data.status == "lose") {
-      $(".player .stack-o-chips").fadeOut(1e3, _.bind(function(){        
+      $(".player .stack-o-chips").fadeOut(1e3, _.bind(function(){
+        $(".player .stack-o-chips").remove()
         this.trigger("end:animateBet")
       }, this))
     } else if (data.status == "win"){
@@ -558,7 +537,7 @@ var PlayerView = PersonView.extend({
         duration: 1e3, 
         complete: _.bind(function(){
           setTimeout(_.bind(function() {
-            $(".stack-o-chips:not(.total)").fadeOut(1e3)
+            $(".stack-o-chips:not(.total)").fadeOut(1e3, function(){ $(this).remove() })
             this.trigger("end:animateBet")
           }, this), 2e3)
         }, this)
