@@ -112,7 +112,6 @@ var BlackjackGame = Backbone.Model.extend({
     
     log("END GAME!")
     this.set("inProgress", false)
-    if (winner) winner == this.player ? this.player.win() : this.player.lose()
     this.people.each(function(person){
       person.showHand()
     })
@@ -120,6 +119,7 @@ var BlackjackGame = Backbone.Model.extend({
       winner: winner,
       reason: reason
     })
+    if (winner) winner == this.player ? this.player.win() : this.player.lose()
     this.saveCredit()
   },
   saveCredit: function(value){
@@ -169,7 +169,7 @@ var BlackjackView = Backbone.View.extend({
     this.playerView.handView.on("end:animate", this.notify, this)
     this.dealerView.handView.on("end:animate", this.notify, this)
     
-    this.playerView.on("end:animateBet", this.displayCredit, this)
+    this.playerView.on("end:animateBet", this.displayCreditTimeout, this)
           
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     
@@ -214,6 +214,11 @@ var BlackjackView = Backbone.View.extend({
     log("DISPLAY CREDIT")
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
   },
+  displayCreditTimeout: function(){
+    setTimeout(_.bind(function(){ 
+      this.displayCredit()
+    }, this), 1500)
+  },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
@@ -228,7 +233,6 @@ var BlackjackView = Backbone.View.extend({
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
     this.queueNotification(type, info.reason)
-    if (info.winner == this.model.player) this.chipFall()
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     this.$(".bet .chip").removeClass("active")
     this.flipControls()
@@ -537,7 +541,9 @@ var PlayerView = PersonView.extend({
   
   animateBet: function(status){
     if (status == "lose") {
-      this.chips.fadeOut()
+      this.chips.fadeOut(_.bind(function(){        
+        this.trigger("end:animateBet")
+      }, this))
     } else if (status == "win"){
       var newChips = this.chips.clone()
       $(".chip-container .dealer").append(newChips)
@@ -548,12 +554,9 @@ var PlayerView = PersonView.extend({
             this.chips.fadeOut()
             newChips.fadeOut()
             this.trigger("end:animateBet")
-            // newChips.addClass("hide").animate({top: "-=250px"})
-            //this.displayCredit()
           }, this), 2e3)
         }, this)
       })
-      
     } else {
       
     }
