@@ -172,7 +172,6 @@ var BlackjackView = Backbone.View.extend({
     this.$("#deal,#hit,#stand,#double").addClass("disabled")
     
     this.displayCredit()
-    // this.displayWelcome()
   },
   alert: this.$(".alert"),
   events: {
@@ -180,7 +179,7 @@ var BlackjackView = Backbone.View.extend({
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
     "click .bet:not(.disabled) .chip:not(.disabled)"  : "deal",
-    "mouseover .bet"                  : "displayCredit"
+    // "mouseover .bet"                  : "displayCredit"
   },
   flipControls: function(){
     var front = this.$(".controls .btn-toolbar:visible")
@@ -189,8 +188,8 @@ var BlackjackView = Backbone.View.extend({
     back.removeClass("hide").show()
   },
   deal: function(){
+    this.clearNotification()
     this.flipControls()
-    // this.hideWelcome()
     this.$("#hit,#stand,#double").removeClass("disabled")
     this.model.deal()
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
@@ -212,13 +211,6 @@ var BlackjackView = Backbone.View.extend({
   displayCredit: function(){
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips")
   },
-  // displayWelcome: function(){
-  //   // if (localStorage && localStorage)
-  //   $('#welcomeModal').modal('show')
-  // },
-  // hideWelcome: function(){
-  //   $('#welcomeModal').modal('hide')
-  // },
   onProgressChange: function(){
     log("inprogress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
@@ -242,6 +234,9 @@ var BlackjackView = Backbone.View.extend({
   },
   queueNotification: function(type, message){
     this.notification = {type: type, message: message}
+  },
+  clearNotification: function(){
+    this.alert.html("").addClass("none")
   },
   // Uses notification queue if no args are passed in
   notify: function(type, message){
