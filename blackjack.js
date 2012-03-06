@@ -213,6 +213,8 @@ var BlackjackView = Backbone.View.extend({
   },
   displayCredit: function(){
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips", true)
+    if (this.model.player.get("credit") == 0)
+      this.showPaypal()
   },
   onProgressChange: function(){
     log("onProgressChange(), inProgress", this.model.get("inProgress"))
