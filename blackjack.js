@@ -162,11 +162,10 @@ var BlackjackView = Backbone.View.extend({
   model: BlackjackGame,
   initialize: function(){
     this.playerView = new PlayerView({el: this.$(".player"), model: this.model.get("player")})
-    this.dealerView = new DealerView({el: this.$(".dealer"), model: this.model.get("dealer")})
+    this.dealerView = new PersonView({el: this.$(".dealer"), model: this.model.get("dealer")})
     
     // Game events
     this.model
-      .on("change:inProgress", this.onProgressChange, this)
       .on("end:game", this.onGameEnd, this)
       .on("push", this.onPush, this)
       
@@ -180,7 +179,7 @@ var BlackjackView = Backbone.View.extend({
   },
   alert: this.$(".alert"),
   events: {
-    "click #double:not(.disabled)"      : "doubleDown",
+    "click #double:not(.disabled)"    : "doubleDown",
     "click #hit:not(.disabled)"       : "hit",
     "click #stand:not(.disabled)"     : "stand",
     "click .bet:not(.disabled) .chip:not(.disabled)"  : "deal"
@@ -194,9 +193,12 @@ var BlackjackView = Backbone.View.extend({
   deal: function(){
     this.clearNotification()
     this.flipControls()
-    this.$("#double").removeClass("disabled")
+    
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
-      this.$("#double").addClass("disabled")  
+      this.$("#double").addClass("disabled")
+    else
+      this.$("#double").removeClass("disabled")
+
     this.model.deal()
   },
   hit: function(){
@@ -204,7 +206,6 @@ var BlackjackView = Backbone.View.extend({
     this.model.hit(this.model.player)
   },
   stand: function(){
-    log("view.stand()")
     this.model.stand(this.model.player)
   },
   doubleDown: function() {
@@ -215,9 +216,6 @@ var BlackjackView = Backbone.View.extend({
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips", true)
     if (this.model.player.get("credit") == 0)
       this.showPaypal()
-  },
-  onProgressChange: function(){
-    log("onProgressChange(), inProgress", this.model.get("inProgress"))
   },
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
@@ -446,10 +444,6 @@ var PersonView = Backbone.View.extend({
   initialize: function(){
     this.handView = new HandView({el: this.$(".hand"), collection: this.model.get("hand")})
   }
-})
-
-var DealerView = PersonView.extend({
-  model: Person
 })
 
 var Player = Person.extend({
