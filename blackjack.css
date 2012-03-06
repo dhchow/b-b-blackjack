@@ -185,11 +185,15 @@ body {
   top: 274px;
   left: 40px;
 }
-.player .stack-o-chips {
+.player-bet .stack-o-chips {
   position: relative;
   float: right;
   right: 89px;
   top: 274px;
+}
+.chip span {
+  position: relative;
+  top: -7px;
 }
 .stack-o-chips .chip {
   margin-top: -57px;

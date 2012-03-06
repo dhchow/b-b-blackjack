@@ -173,8 +173,8 @@ var BlackjackView = Backbone.View.extend({
     this.model.deck.on("shuffled", this.onShuffle, this)
   
     this.model.player.on("empty:credit", this.showPaypal, this)
-              
-    this.notifications = []
+                  
+    $("[rel=tooltip]").tooltip()
     
     this.displayCredit()
   },
@@ -506,7 +506,7 @@ var PlayerView = PersonView.extend({
     
   bet: function(ev){
     this.$(".bet .chip").removeClass("active")
-    var target = $(ev.target)
+    var target = $(ev.target).closest(".chip")
     target.addClass("active")
     this.model.set("bet", target.data("value"))
     
@@ -515,7 +515,7 @@ var PlayerView = PersonView.extend({
   
   addChipsToBet: function(value){
     var chips = this.generateChips(value)
-    $(".chip-container .player").append(chips)
+    $(".chip-container .player-bet").append(chips)
   },
   
   generateChips: function(value) {
@@ -524,8 +524,8 @@ var PlayerView = PersonView.extend({
   
   animateBet: function(data){
     if (data.status == "lose") {
-      $(".player .stack-o-chips").fadeOut(1e3, _.bind(function(){
-        $(".player .stack-o-chips").remove()
+      $(".player-bet .stack-o-chips").fadeOut(1e3, _.bind(function(){
+        $(".player-bet .stack-o-chips").remove()
         this.trigger("end:animateBet")
       }, this))
     } else if (data.status == "win"){

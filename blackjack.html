@@ -10,13 +10,13 @@
 
     <div class="chip-container">
       <div class="player-total">
-        <div class="stack-o-chips total">
+        <div class="stack-o-chips total" rel="tooltip" title="Total" data-placement="bottom">
           <div class="chip chip1" href="#"></div>
           <div class="chip chip2" href="#"></div>
           <div class="chip chip3" href="#"><span>500</span></div>
         </div>
       </div>
-      <div class="player"></div>
+      <div class="player-bet"></div>
       <div class="dealer"></div>
     </div>
     
@@ -43,10 +43,10 @@
       <div class="player controls">
         <div class="bet btn-toolbar">
           <div class="btn-group">            
-            <a class="chip span1" href="#" data-value="1">1</a>
-            <a class="chip span1" href="#" data-value="5">5</a>
-            <a class="chip span1" href="#" data-value="25">25</a>
-            <a class="chip span1" href="#" data-value="100">100</a>
+            <a class="chip span1" href="#" data-value="1"><span>1</span></a>
+            <a class="chip span1" href="#" data-value="5"><span>5</span></a>
+            <a class="chip span1" href="#" data-value="25"><span>25</span></a>
+            <a class="chip span1" href="#" data-value="100"><span>100</span></a>
           </div>
         </div>        
         <div class="btn-toolbar hide">
@@ -107,7 +107,6 @@
     <script src="./lib/bootstrap-modal.js"></script>
     <script src="./lib/bootstrap-transition.js"></script>
     <script src="./lib/bootstrap-tooltip.js"></script>
-    <script src="./lib/bootstrap-popover.js"></script>
     <script src="./blackjack.js"></script>
     
     <script>
