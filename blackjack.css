@@ -167,7 +167,7 @@ body {
 .dealer .stack-o-chips {
   position: relative;
   float: right;
-  right: 149px;
+  right: 86px; /*149px;*/
   top: 63px;
 }
 .player-total .stack-o-chips {

@@ -506,9 +506,9 @@ var PlayerView = PersonView.extend({
   initialize: function(){
     PersonView.prototype.initialize.call(this)
     this.model
-      .on("change:bet", this.resetBet, this)
+      .on("change:bet", this.onChangeBet, this)
       .on("change:credit", this.updateAffordability, this)
-      .on("change:doubling", this.resetDouble, this)
+      .on("change:doubling", this.onChangeDouble, this)
       .on("changeStatus", this.animateBet, this)
       
     this.updateAffordability(this.model, this.model.get("credit"))
@@ -545,7 +545,7 @@ var PlayerView = PersonView.extend({
     } else if (data.status == "win"){
       var newChips = this.generateChips(data.amount)
       $(".chip-container .dealer").append(newChips)
-      newChips.animate({top: "+=160px", right: "-=30px"}, {
+      newChips.animate({top: "+=190px"}, {
         duration: 1e3, 
         complete: _.bind(function(){
           setTimeout(_.bind(function() {
@@ -557,12 +557,17 @@ var PlayerView = PersonView.extend({
     }
   },
       
-  resetBet: function(model, bet){
+  onChangeBet: function(model, bet){
     if (!bet) this.$(".bet .chip").removeClass("active")
   },
   
-  resetDouble: function(model, doubling){
-    if (!doubling) this.$("#double").removeClass("active")
+  onChangeDouble: function(model, doubling){
+    if (doubling) {
+      var chips = this.generateChips(model.get("bet") / 2)
+      $(".chip-container .player").prepend(chips)
+    } else {
+      this.$("#double").removeClass("active")
+    }
   },
   
   updateAffordability: function(model, credit){
