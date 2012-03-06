@@ -1,4 +1,3 @@
-debug = true
 var BlackjackGame = Backbone.Model.extend({
   defaults: {
     inProgress: false
@@ -68,7 +67,7 @@ var BlackjackGame = Backbone.Model.extend({
         winner = this.people.max(function(person){ return person.get("hand").value()})
         reason = winner.get("name") + " won with a higher hand"
       }
-      log("WINNER!", winner)
+      log("\tWINNER!", winner)
     } else {
       this.people.each(function(person){
         log("\t" + person.get("name"), "hand value", person.get("hand").value())
@@ -104,6 +103,7 @@ var BlackjackGame = Backbone.Model.extend({
       log("\tpush")
       this.endGame(winner, reason)
       this.trigger("push")
+      // Allow push notification to finish before re-dealing
       setTimeout(_.bind(function(){
         log("\tdeal (push)")
         this.deal()
@@ -119,9 +119,7 @@ var BlackjackGame = Backbone.Model.extend({
       person.set("doubling", false)
     }, this)
   },
-  endGame: function(winner, reason){
-    if (!this.get("inProgress")) return;
-    
+  endGame: function(winner, reason){    
     log("END GAME!")
     this.set("inProgress", false)
     this.dealer.showHand()
