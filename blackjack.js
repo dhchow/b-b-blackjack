@@ -176,8 +176,6 @@ var BlackjackView = Backbone.View.extend({
   
     this.model.player.on("empty:credit", this.showPaypal, this)
               
-    this.$("#deal,#hit,#stand,#double").addClass("disabled")
-    
     this.notifications = []
     
     this.displayCredit()
@@ -198,7 +196,7 @@ var BlackjackView = Backbone.View.extend({
   deal: function(){
     this.clearNotification()
     this.flipControls()
-    this.$("#hit,#stand,#double").removeClass("disabled")
+    this.$("#double").removeClass("disabled")
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
       this.$("#double").addClass("disabled")  
     this.model.deal()
@@ -209,8 +207,6 @@ var BlackjackView = Backbone.View.extend({
   },
   stand: function(){
     log("view.stand()")
-    this.$("#hit").addClass("disabled")
-    this.$("#double").addClass("disabled")
     this.model.stand(this.model.player)
   },
   doubleDown: function() {
@@ -222,19 +218,10 @@ var BlackjackView = Backbone.View.extend({
   },
   onProgressChange: function(){
     log("onProgressChange(), inProgress", this.model.get("inProgress"))
-    if (this.model.get("inProgress")) {
-      this.$("#deal").addClass("disabled").removeClass("btn-primary")
-      this.$(".bet").addClass("disabled")
-    } else {
-      this.$("#deal").removeClass("disabled").addClass("btn-primary")
-      this.$("#hit,#stand").addClass("disabled")
-      this.$(".bet").removeClass("disabled")
-    }
   },
   onGameEnd: function(info){
     var type = info.winner == this.model.player ? "success" : info.winner == null ? "info" : "danger"    
     this.notify(type, info.reason)
-    this.$("#deal,#hit,#stand,#double").addClass("disabled")
     this.$(".bet .chip").removeClass("active")
     this.flipControls()
   },
@@ -243,7 +230,6 @@ var BlackjackView = Backbone.View.extend({
   },
   onPush: function(){
     this.flipControls()
-    this.$(".bet,#double,#hit,#stand").removeClass("disabled")
   },
   clearNotification: function(){
     this.alert.hide()
@@ -515,7 +501,7 @@ var PlayerView = PersonView.extend({
   },
   
   events: {
-    "click .bet .chip" : "bet"
+    "click .bet:not(.disabled) .chip:not(.disabled)" : "bet"
   },
     
   bet: function(ev){
