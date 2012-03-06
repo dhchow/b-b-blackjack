@@ -164,6 +164,15 @@ body {
   height: 230px;
   z-index: 1000;
 }
+.chip-container .chip:active, .chip-container .chip:hover {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  cursor: default;  
+}
 .dealer .stack-o-chips {
   position: relative;
   float: right;
