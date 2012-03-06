@@ -111,8 +111,7 @@
     
     <script>
       $(function(){
-        var blackjackGame = new BlackjackGame()
-        window.blackjackView = new BlackjackView({model: blackjackGame, el: $(".container-fluid")})
+        new BlackjackView({model: new BlackjackGame(), el: $(".container-fluid")})
       })    
     </script>
   </body>
