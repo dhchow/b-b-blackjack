@@ -13,7 +13,7 @@ var BlackjackGame = Backbone.Model.extend({
     this.player.on("change:standing", this.dealerTurn, this)    
   },
   deal: function(){
-    log("deal")
+    log("deal()")
     this.reset()
     this.player.addCards(this.deck.draw(2))
     var dealers = this.deck.draw(2)
@@ -27,6 +27,7 @@ var BlackjackGame = Backbone.Model.extend({
     this.refreshState()
   },
   stand: function(person){
+    log("stand()", person)
     person.set("standing", true)
     this.refreshState()
   },
@@ -38,13 +39,13 @@ var BlackjackGame = Backbone.Model.extend({
   dealerTurn: function(){
     if (!this.get("inProgress")) return;
     
-    log("dealer turn! hand value", this.dealer.get("hand").value())
+    log("dealerTurn(), hand value", this.dealer.get("hand").value())
     this.dealer.showHand()
     if (this.dealer.get("hand").value() < 17) {
-      log("dealer hits")
+      log("\tdealer hits")
       this.hit(this.dealer)
     } else {
-      log("dealer stands")
+      log("\tdealer stands")
       this.stand(this.dealer)
     }
   },
@@ -52,6 +53,9 @@ var BlackjackGame = Backbone.Model.extend({
     return this.people.without(person)[0]
   },
   refreshState: function(){
+    log("refreshState(), inProgress ", this.get("inProgress"))
+    if (!this.get("inProgress")) return;
+    
     var winner, reason
     var allStanding = this.people.all(function(person){ return person.get("standing") })
     log("\tall standing?", allStanding)
@@ -97,8 +101,11 @@ var BlackjackGame = Backbone.Model.extend({
     } else if (!reason && this.player.get("standing")) {
       this.dealerTurn()
     } else if (!winner && reason == "Push") {
+      log("\tpush")
+      this.endGame(winner, reason)
       this.trigger("push")
       setTimeout(_.bind(function(){
+        log("\tdeal (push)")
         this.deal()
       }, this), 2e3)
     }
@@ -190,20 +197,18 @@ var BlackjackView = Backbone.View.extend({
   },
   deal: function(){
     this.clearNotification()
-    this.resetControls()
-    this.model.deal()
-  },
-  resetControls: function(){
     this.flipControls()
     this.$("#hit,#stand,#double").removeClass("disabled")
     if (this.model.player.get("credit") < this.model.player.get("bet") * 2)
-      this.$("#double").addClass("disabled")    
+      this.$("#double").addClass("disabled")  
+    this.model.deal()
   },
   hit: function(){
     this.$("#double").addClass("disabled")
     this.model.hit(this.model.player)
   },
   stand: function(){
+    log("view.stand()")
     this.$("#hit").addClass("disabled")
     this.$("#double").addClass("disabled")
     this.model.stand(this.model.player)
@@ -216,7 +221,7 @@ var BlackjackView = Backbone.View.extend({
     this.notify("none", "You have <strong>" + this.model.player.get("credit") + "</strong> chips", true)
   },
   onProgressChange: function(){
-    log("inprogress", this.model.get("inProgress"))
+    log("onProgressChange(), inProgress", this.model.get("inProgress"))
     if (this.model.get("inProgress")) {
       this.$("#deal").addClass("disabled").removeClass("btn-primary")
       this.$(".bet").addClass("disabled")
@@ -237,8 +242,8 @@ var BlackjackView = Backbone.View.extend({
     this.notify("info", "Deck reshuffled")
   },
   onPush: function(){
-    this.notify("info", "Push", true)
-    this.resetControls()
+    this.flipControls()
+    this.$(".bet,#double,#hit,#stand").removeClass("disabled")
   },
   clearNotification: function(){
     this.alert.hide()
