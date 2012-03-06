@@ -79,120 +79,135 @@ describe("BlackjackGame", function(){
   })  
   
   describe("#refreshState", function(){
-    beforeEach(function(){
-      spyOn(game, "endGame")
-    })
-    describe("when player's hand is over 21", function() {
-      it("ends game declaring dealer as winner", function() {
-        spyOn(game.player.get("hand"), "value").andReturn(22)        
+    describe("when game is already over", function() {
+      it("does not end game", function() {
+        spyOn(game, "endGame")
+        game.set("inProgress", false)  
         game.refreshState()
-        expect(game.endGame).toHaveBeenCalled()
-        expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
-      })
+        expect(game.endGame).not.toHaveBeenCalled()
+      })  
     })
-    describe("when dealer's hand is over 21", function() {
-      it("ends game declaring player as winner", function() {
-        spyOn(game.dealer.get("hand"), "value").andReturn(22)
-        game.refreshState()        
-        expect(game.endGame).toHaveBeenCalled()     
-        expect(game.endGame.mostRecentCall.args[0]).toBe(game.player)
-      })
-    })
-    describe("when dealer and player are both standing", function() {
-      beforeEach(function() {
-        game.dealer.set("standing", true)
-        game.player.set("standing", true)        
-      })
-      it("ends game declaring person with higher hand as winner", function() {
-        spyOn(game.dealer.get("hand"), "value").andReturn(20)
-        spyOn(game.player.get("hand"), "value").andReturn(18)
-        game.refreshState()
-        expect(game.endGame).toHaveBeenCalled()  
-        expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
-      })
-      
-      describe("when dealer and player tie", function() {
-        it("ends game declaring no winner", function() {
-          spyOn(game.dealer.get("hand"), "value").andReturn(15)
-          spyOn(game.player.get("hand"), "value").andReturn(15)
+    
+    describe("when game is in progress", function() {
+      beforeEach(function(){
+        spyOn(game, "endGame")
+        game.set("inProgress", true)
+      })  
+    
+      describe("when player's hand is over 21", function() {
+        it("ends game declaring dealer as winner", function() {
+          spyOn(game.player.get("hand"), "value").andReturn(22)        
           game.refreshState()
-          expect(game.endGame).toHaveBeenCalled()  
-          expect(game.endGame.mostRecentCall.args[0]).toBe(null)
+          expect(game.endGame).toHaveBeenCalled()
+          expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
         })
       })
-    })
-    
-    describe("when only player has 21", function() {
-      it("ends game declaring player winner", function() {
-        spyOn(game.player.get("hand"), "value").andReturn(21)
-        spyOn(game.dealer.get("hand"), "value").andReturn(11)
-        game.refreshState()
-        expect(game.endGame).toHaveBeenCalled()  
-        expect(game.endGame.mostRecentCall.args[0]).toBe(game.player)
+      describe("when dealer's hand is over 21", function() {
+        it("ends game declaring player as winner", function() {
+          spyOn(game.dealer.get("hand"), "value").andReturn(22)
+          game.refreshState()        
+          expect(game.endGame).toHaveBeenCalled()     
+          expect(game.endGame.mostRecentCall.args[0]).toBe(game.player)
+        })
       })
-    })
-    
-    describe("when only dealer has 21", function() {
-      it("ends game declaring dealer winner", function() {
-        spyOn(game.player.get("hand"), "value").andReturn(20)
-        spyOn(game.dealer.get("hand"), "value").andReturn(21)
-        game.refreshState()
-        expect(game.endGame).toHaveBeenCalled()  
-        expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
-      })
-    })
-    
-    describe("when dealer and player both have 21", function() {
-      describe("when only dealer has a blackjack", function() {
-        it("ends game declaring dealer winner", function() {
-          game.dealer.addCards([
-            new Card({suit: "spades", rank: "J"}),
-            new Card({suit: "diams", rank: "A"}),
-          ])
-          game.player.addCards([
-            new Card({suit: "spades", rank: 4}),
-            new Card({suit: "diams", rank: 7}),
-            new Card({suit: "diams", rank: 10})
-          ])
+      describe("when dealer and player are both standing", function() {
+        beforeEach(function() {
+          game.dealer.set("standing", true)
+          game.player.set("standing", true)        
+        })
+        it("ends game declaring person with higher hand as winner", function() {
+          spyOn(game.dealer.get("hand"), "value").andReturn(20)
+          spyOn(game.player.get("hand"), "value").andReturn(18)
           game.refreshState()
           expect(game.endGame).toHaveBeenCalled()  
           expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
         })
-      })
       
-      describe("when only player has a blackjack", function() {
+        describe("when dealer and player tie", function() {
+          it("ends game declaring no winner", function() {
+            spyOn(game.dealer.get("hand"), "value").andReturn(15)
+            spyOn(game.player.get("hand"), "value").andReturn(15)
+            game.refreshState()
+            expect(game.endGame).toHaveBeenCalled()  
+            expect(game.endGame.mostRecentCall.args[0]).toBe(null)
+          })
+        })
+      })
+    
+      describe("when only player has 21", function() {
         it("ends game declaring player winner", function() {
-          game.player.addCards([
-            new Card({suit: "spades", rank: "J"}),
-            new Card({suit: "diams", rank: "A"}),
-          ])
-          game.dealer.addCards([
-            new Card({suit: "spades", rank: 4}),
-            new Card({suit: "diams", rank: 7}),
-            new Card({suit: "diams", rank: 10})
-          ])
+          spyOn(game.player.get("hand"), "value").andReturn(21)
+          spyOn(game.dealer.get("hand"), "value").andReturn(11)
           game.refreshState()
           expect(game.endGame).toHaveBeenCalled()  
           expect(game.endGame.mostRecentCall.args[0]).toBe(game.player)
         })
       })
-      
-      describe("when both people have a blackjack", function() {
-        it("ends game declaring no winner", function() {
-          game.dealer.addCards([
-            new Card({suit: "spades", rank: "J"}),
-            new Card({suit: "diams", rank: "A"}),
-          ])
-          game.player.addCards([
-            new Card({suit: "spades", rank: "A"}),
-            new Card({suit: "diams", rank: "J"})
-          ])
+    
+      describe("when only dealer has 21", function() {
+        it("ends game declaring dealer winner", function() {
+          spyOn(game.player.get("hand"), "value").andReturn(20)
+          spyOn(game.dealer.get("hand"), "value").andReturn(21)
           game.refreshState()
           expect(game.endGame).toHaveBeenCalled()  
-          expect(game.endGame.mostRecentCall.args[0]).toBe(null)
+          expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
         })
       })
+    
+      describe("when dealer and player both have 21", function() {
+        describe("when only dealer has a blackjack", function() {
+          it("ends game declaring dealer winner", function() {
+            game.dealer.addCards([
+              new Card({suit: "spades", rank: "J"}),
+              new Card({suit: "diams", rank: "A"}),
+            ])
+            game.player.addCards([
+              new Card({suit: "spades", rank: 4}),
+              new Card({suit: "diams", rank: 7}),
+              new Card({suit: "diams", rank: 10})
+            ])
+            game.refreshState()
+            expect(game.endGame).toHaveBeenCalled()  
+            expect(game.endGame.mostRecentCall.args[0]).toBe(game.dealer)
+          })
+        })
+      
+        describe("when only player has a blackjack", function() {
+          it("ends game declaring player winner", function() {
+            game.player.addCards([
+              new Card({suit: "spades", rank: "J"}),
+              new Card({suit: "diams", rank: "A"}),
+            ])
+            game.dealer.addCards([
+              new Card({suit: "spades", rank: 4}),
+              new Card({suit: "diams", rank: 7}),
+              new Card({suit: "diams", rank: 10})
+            ])
+            game.refreshState()
+            expect(game.endGame).toHaveBeenCalled()  
+            expect(game.endGame.mostRecentCall.args[0]).toBe(game.player)
+          })
+        })
+      
+        describe("when both people have a blackjack", function() {
+          it("ends game declaring no winner", function() {
+            game.dealer.addCards([
+              new Card({suit: "spades", rank: "J"}),
+              new Card({suit: "diams", rank: "A"}),
+            ])
+            game.player.addCards([
+              new Card({suit: "spades", rank: "A"}),
+              new Card({suit: "diams", rank: "J"})
+            ])
+            game.refreshState()
+            expect(game.endGame).toHaveBeenCalled()  
+            expect(game.endGame.mostRecentCall.args[0]).toBe(null)
+          })
+        })
+      })
+      
     })
+    
   })
   
   describe("#dealerTurn", function() {
