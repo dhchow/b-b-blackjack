@@ -1,6 +1,6 @@
 /* Background images from http://subtlepatterns.com/ */
 body {
-  background-image: url(purty_wood.png);
+  background-image: url(../img/purty_wood.png);
 }
 
 /* =========== Bootstrappy overrides ========== */
@@ -13,7 +13,7 @@ body {
   border-radius: 20px;
   background-color: #ededed;
   display: table;
-  background-image: url(pool_table.png);
+  background-image: url(../img/pool_table.png);
   text-align: center;
 }
 
