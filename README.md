@@ -31,7 +31,7 @@ Credits/Tools
 
 [underscore.js](http://documentcloud.github.com/underscore/) - My first time really diving into underscore, pretty handy esp with Backbone collections.
 
-[Jasmine](http://pivotal.github.com/jasmine/) - Still my favorite JS test framework out there.
+[Jasmine](https://jasmine.github.io/) - Still my favorite JS test framework out there.
 
 [jQuery](http://jquery.com) - Yeah
 
